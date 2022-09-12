@@ -5,12 +5,13 @@ CC = g++
 sources = $(wildcard src/*.cpp)
 objects = $(sources:.cpp=.o)
 CFLAGS = -Wall -g
+# CFLAGS = -Wall -g
 flags = -Wall -D__LITTLE_ENDIAN__ -D__LINUX_ALSA__ -I/usr/include/stk
 
 $(exec): $(objects)
 	g++ $(objects) $(flags) -o $(exec) -lstk
 
-%.o: %.c include/%.h
+%.o: %.cpp include/%.h
 	g++ -c $(flags) $< -o $@ -lstk
 
 clean:
