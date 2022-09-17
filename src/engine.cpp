@@ -33,26 +33,26 @@ void Engine::get_nota() {
 }
 
 void Engine::play() {
-    while(true) {
-        try {
-	        dac.startStream();
-	    }
-	    catch ( RtAudioError &error ) {
-	        error.printMessage();
-	    goto cleanup;
-	}
+    // while(true) {
+    //     try {
+	//         dac.startStream();
+	//     }
+	//     catch ( RtAudioError &error ) {
+	//         error.printMessage();
+	//     goto cleanup;
+	// }
 
-	// Block waiting until callback signals done.
-	while ( !data.done )
-	Stk::sleep( 100 );
+	// // Block waiting until callback signals done.
+	// while ( !data.done )
+	// Stk::sleep( 100 );
 	
-	// Shut down the callback and output stream.
-	try {
-	dac.closeStream();
-	}
-	catch ( RtAudioError &error ) {
-	error.printMessage();
-	}
+	// // Shut down the callback and output stream.
+	// try {
+	// dac.closeStream();
+	// }
+	// catch ( RtAudioError &error ) {
+	// error.printMessage();
+	// }
 
-    }
+    // }
 }

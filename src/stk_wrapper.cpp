@@ -41,15 +41,15 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 	int counter, nTicks = (int) nBufferFrames;
 
 	while ( nTicks > 0 && !pwrapper->is_done() ) {
-		if ( !pwrapper->has_message() ) {
-			messager.popMessage( message );
-			if ( message.type > 0 ) {
-				counter = (long) (message.time * stk::Stk::sampleRate());
-				no_message = false;
-			}
-			else
-				counter = DELTA_CONTROL_TICKS;
-		}
+		// if ( !pwrapper->has_message() ) {
+		// 	messager.popMessage( message );
+		// 	if ( message.type > 0 ) {
+		// 		counter = (long) (message.time * stk::Stk::sampleRate());
+		// 		no_message = false;
+		// 	}
+		// 	else
+		// 		counter = DELTA_CONTROL_TICKS;
+		// }
 	
 		counter = std::min( nTicks, counter );
 		counter -= counter;
@@ -61,7 +61,7 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 		if ( nTicks == 0 ) break;
 	
 		// Process control messages.
-		if ( pwrapper->has_message() ) pwrapper->process_message();
+		// if ( pwrapper->has_message() ) pwrapper->process_message();
 	}
 
 	return 0;
