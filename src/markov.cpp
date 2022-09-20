@@ -1,19 +1,20 @@
 #include "include/markov.h"
+#include <cmath>
 #include <random>
 #include <iostream>
 #include <vector>
+#include "include/utils.h"
 
 Markov::Markov(std::vector<int> m) {
-    estado = 0;
-    n_estados = m.size();
-    int i, j;
-    int n_total = n_estados * n_estados;
-    std::vector<int> matriz_transicao(0, n_estados * n_estados);
+    estado = c1;
+    n_estados = std::sqrt(m.size());
+    // int i, j;
+    std::vector<int> matriz_transicao(m);
 
-    for (i = 0; i < n_estados; i++) {    
-        for (j = 0; j < n_estados; j++)
-            matriz_transicao[i * n_estados + j] = m[i * n_estados + j];
-    }
+    // for (i = 0; i < n_estados; i++) {    
+    //     for (j = 0; j < n_estados; j++)
+    //         matriz_transicao[i * n_estados + j] = m[i * n_estados + j];
+    // }
 }
 
 Markov::~Markov() {

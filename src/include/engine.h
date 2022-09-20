@@ -3,11 +3,8 @@
 
 #include "markov.h"
 #include "stk_wrapper.h"
+#include "utils.h"
 #include <mutex>
-
-enum notas {
-    c1 = 264, d = 297, e = 330, f = 352, g = 396, a = 440, b = 495, c2 = 528
-}; 
 
 // class Engine {
 //     public:
@@ -28,14 +25,17 @@ class Engine {
 
     protected:
         Engine(std::vector<int> m_notas):
-        cadeia_notas(m_notas)
+        cadeia_notas(m_notas),default_octave(5),count_notas(0)
         {}
         ~Engine() {}
 
     public:
+        
         Markov cadeia_notas;
+        int default_octave;
         StkWrapper wrapper;
-        void get_nota();
+        int get_note();
+        int count_notas;
         void play();
 
         // Singletons should not be cloneable
@@ -50,26 +50,6 @@ class Engine {
         // } 
 };
 
-/**
- * Static methods should be defined outside the class.
- */
 
-Engine* Engine::pinstance_{nullptr};
-std::mutex Engine::mutex_;
-
-/**
- * The first time we call GetInstance we will lock the storage location
- *      and then we make sure again that the variable is null and then we
- *      set the value. RU:
- */
-Engine *Engine::GetInstance(std::vector<int> m)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (pinstance_ == nullptr)
-    {
-        pinstance_ = new Engine(m);
-    }
-    return pinstance_;
-}
 
 #endif //TCC_ENGINE_H

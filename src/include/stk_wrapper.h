@@ -29,12 +29,18 @@ class StkWrapper {
         //     RtAudioStreamStatus status,
         //     void *dataPointer
         //     );
-        void process_message();
-        void freq_to_midi_note(float freq);
+        // float freq_to_midi_note(float freq);
     public:
-        void message_from_note(float note);
+        void process_message();
+        void message_from_note(int note);
+        long get_message_type();
         bool has_message();
         bool is_done();
+        void set_done();
+        int get_counter();
+        void set_counter(int n);
+        void toggle_stream(bool on);
+        long get_required_counter();
         stk::StkFloat get_sample();
         StkWrapper();
 };
