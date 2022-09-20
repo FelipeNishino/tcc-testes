@@ -15,13 +15,16 @@ $(exec): $(objects)
 	g++ -c $(flags) $< -o $@ -lstk
 
 clean:
-	-rm *.out
-	-rm *.o
-	-rm *.a
+	-rm $(exec)
+	# -rm *.o
+	# -rm *.a
 	-rm src/*.o
 
 run: $(exec)
 	./$(exec)
+
+example:
+	g++ testes/threebes.cpp $(flags) -o bin/threebes.out -lstk
 
 # build:
 # 	g++ -c $(flags) -o $(exec) stk-test.cpp -lstk
