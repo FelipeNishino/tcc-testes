@@ -1,10 +1,10 @@
 // threebees.cpp STK tutorial program
 
-#include "BeeThree.h"
-#include "RtAudio.h"
-#include "Messager.h"
-#include "Voicer.h"
-#include "SKINImsg.h"
+#include "stk/BeeThree.h"
+#include "stk/RtAudio.h"
+#include "stk/Messager.h"
+#include "stk/Voicer.h"
+#include "stk/SKINImsg.h"
 
 #include <algorithm>
 using std::min;
