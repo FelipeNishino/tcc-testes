@@ -9,7 +9,7 @@ CFLAGS = -Wall -g
 flags = -Wall -D__LITTLE_ENDIAN__ -D__LINUX_ALSA__ -I/usr/include/stk
 
 $(exec): $(objects)
-	g++ $(objects) $(flags) -o $(exec) -lstk
+	g++ $(objects) libmidifile.a $(flags) -o $(exec) -lstk
 
 %.o: %.cpp include/%.h
 	g++ -c $(flags) $< -o $@ -lstk
@@ -25,6 +25,9 @@ run: $(exec)
 
 example:
 	g++ testes/threebes.cpp $(flags) -o bin/threebes.out -lstk
+
+swift:
+	swift src/swift/main.swift
 
 # build:
 # 	g++ -c $(flags) -o $(exec) stk-test.cpp -lstk
