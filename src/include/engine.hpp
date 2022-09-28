@@ -1,9 +1,9 @@
 #ifndef TCC_ENGINE_H
 #define TCC_ENGINE_H
 
-#include "markov.h"
-#include "stk_wrapper.h"
-#include "utils.h"
+#include "markov.hpp"
+#include "stk_wrapper.hpp"
+#include "utils.hpp"
 #include <mutex>
 
 // class Engine {
