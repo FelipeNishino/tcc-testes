@@ -10,6 +10,7 @@ class RequestManager {
         std::string authorization;
         std::string auth_token;
         std::chrono::seconds auth_expiration;
+        void retrieve_auth_token();
     public:
         RequestManager();
         void perform_request();

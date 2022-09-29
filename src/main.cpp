@@ -4,6 +4,7 @@
 #include <iterator>
 #include <vector>
 #include "include/libmidifile/MidiFile.h"
+#include "include/request_manager.hpp"
 
 void convert() {
     smf::MidiFile midifile;
@@ -24,7 +25,7 @@ int main() {
     // };
     // convert();
     // return 0;
-    
+    RequestManager asd;
     // std::vector<BYTE> decodedData = base64_decode(encodedData);
 
     // std::vector<int> m_notas(25, 1);
