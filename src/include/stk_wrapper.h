@@ -7,6 +7,7 @@
 #include "stk/SKINImsg.h"
 #include "stk/RtAudio.h"
 #include <stk/Stk.h>
+#include <set>
 
 #define DELTA_CONTROL_TICKS 64 // default sample frames between control input checks
 
@@ -19,6 +20,7 @@ class StkWrapper {
 	    int counter;
 	    bool no_message;
 	    bool done;
+        std::set<float> now_playing;
         void configure();
         void raise_error();
         // int tick(
@@ -31,6 +33,7 @@ class StkWrapper {
         //     );
         // float freq_to_midi_note(float freq);
     public:
+        void list_devices();
         void process_message();
         void message_from_note(int note);
         long get_message_type();

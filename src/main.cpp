@@ -12,12 +12,11 @@ int main() {
     //     51, 52, 53, 54, 55
     // };
 
-    std::vector<int> m_notas(25, 1);
-
-    Engine* engine = Engine::GetInstance(m_notas);
+    Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     // DeviceManager dm;
     // std::cout << engine->count_notas << std::endl;
     engine->play();
+    // engine->wrapper.list_devices();
     // Markov markov(5, m);
     // markov.display();
     // nota(markov);
