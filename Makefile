@@ -9,7 +9,7 @@ CFLAGS = -Wall -g
 flags = -Wall -D__LITTLE_ENDIAN__ -D__LINUX_ALSA__ -I/usr/include/stk -std=c++20
 
 $(exec): $(objects)
-	g++ $(objects) libcurlpp.a libmidifile.a $(flags) -o $(exec) -lstk
+	g++ $(objects) libs/libcurlpp.a libs/libmidifile.a $(flags) -o $(exec) -lstk
 
 %.o: %.cpp include/%.hpp
 	g++ -c $(flags) $< -o $@ -lstk

@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 src/swift
+userconfig.txt
 # Compiled Object files
 *.slo
 *.lo
@@ -23,7 +24,7 @@ src/swift
 # Compiled Static libraries
 *.lai
 *.la
-*.a
+#*.a
 *.lib
 
 # Executables
