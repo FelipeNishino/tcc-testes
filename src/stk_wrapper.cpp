@@ -11,11 +11,13 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <set>
 
 StkWrapper::StkWrapper() {
     counter = 0;
     no_message = true;
     done = false;
+	now_playing = std::set<float>();
 
 	configure();
 
@@ -71,7 +73,6 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 		if ( wrapper->has_message() ) wrapper->process_message();
 		// if (engine->count_notas > 3) 
 		// 	engine->wrapper.set_done();
-		
 	}
 
 	return 0;
@@ -83,43 +84,53 @@ void StkWrapper::process_message()
 	stk::StkFloat value2 = message.floatValues[1];
 
 	switch( message.type ) {
+		case __SK_Exit_:
+			done = true;
+			break;
 
-	case __SK_Exit_:
-	done = true;
-	return;
+		case __SK_NoteOn_:
+			for (auto &note : now_playing)
+				voicer.noteOff( note, 64.0 );
+			now_playing.clear();
+			if ( value2 == 0.0 ) // velocity is zero ... really a NoteOff
+				voicer.noteOff( value1, 64.0 );
+			else { // a NoteOn
 
-	case __SK_NoteOn_:
-	if ( value2 == 0.0 ) // velocity is zero ... really a NoteOff
-		voicer.noteOff( value1, 64.0 );
-	else { // a NoteOn
-		voicer.noteOn( value1, value2 );
-		voicer.noteOn( value1 + 2, value2 );
-		voicer.noteOn( value1 + 4, value2 );
-	}
-	break;
+				now_playing.insert(value1);
+				// now_playing.insert(value1 + 2);
+				// now_playing.insert(value1 + 4);
+				voicer.noteOn( value1, value2 );
+				// voicer.noteOn( value1 + 2, value2 );
+				// voicer.noteOn( value1 + 4, value2 );
+			}
+			break;
 
-	case __SK_NoteOff_:
-	voicer.noteOff( value1, value2 );
-	break;
+		case __SK_NoteOff_:
+			voicer.noteOff( value1, value2 );
+			break;
 
-	case __SK_ControlChange_:
-	voicer.controlChange( (int) value1, value2 );
-	break;
+		case __SK_ControlChange_:
+			voicer.controlChange( (int) value1, value2 );
+			break;
 
-	case __SK_AfterTouch_:
-	voicer.controlChange( 128, value1 );
+		case __SK_AfterTouch_:
+			voicer.controlChange( 128, value1 );
 
-	case __SK_PitchChange_:
-	voicer.setFrequency( value1 );
-	break;
+		case __SK_PitchChange_:
+			voicer.setFrequency( value1 );
+			break;
 
-	case __SK_PitchBend_:
-	voicer.pitchBend( value1 );
-
+		case __SK_PitchBend_:
+			voicer.pitchBend( value1 );
 	} // end of switch
 
 	no_message = true;
 	return;
+}
+
+void StkWrapper::list_devices() {
+	for (unsigned int i = 0; i < dac.getDeviceCount(); i++)
+		std::cout << dac.getDeviceInfo(i).name << " - " << i << '\n';
 }
 
 void StkWrapper::message_from_note(int note) {
@@ -129,10 +140,10 @@ void StkWrapper::message_from_note(int note) {
 	message.floatValues[1] = 64;
 	message.channel = 1;
 	Engine* engine = Engine::GetInstance(std::vector<int>());
-	message.time = ( engine->count_notas == 1 ? 0 : 0.8 );
+	message.time = ( engine->count_notas == 1 ? 0 : 0.5 );
 	std::cout << engine->count_notas << std::endl;
-	message.time = 0.002;
-	message.time = 0.5;
+	// message.time = 0.002;
+	// message.time = 0.5;
 	no_message = false;
 }
 
@@ -142,11 +153,8 @@ void StkWrapper::raise_error() {
 
 void StkWrapper::configure() {
     RtAudio::StreamParameters parameters;
-	for (unsigned int i = 0; i < dac.getDeviceCount(); i++) {
-		std::cout << dac.getDeviceInfo(i).name << " - " << i << '\n';
-	}
-	
-	unsigned int deviceId = 2;
+	list_devices();
+	unsigned int deviceId = 0;
 	parameters.deviceId = deviceId;
 	RtAudio::DeviceInfo device = dac.getDeviceInfo(deviceId);
 	parameters.nChannels = 1;

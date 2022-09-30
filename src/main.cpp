@@ -28,6 +28,11 @@ int main() {
     RequestManager asd;
     // std::vector<BYTE> decodedData = base64_decode(encodedData);
 
+    Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
+    // DeviceManager dm;
+    // std::cout << engine->count_notas << std::endl;
+    engine->play();
+    // engine->wrapper.list_devices();
     // std::vector<int> m_notas(25, 1);
 
     // Engine* engine = Engine::GetInstance(m_notas);

@@ -64,6 +64,7 @@ void Engine::play() {
 	    wrapper.toggle_stream(true);
 	}
 	catch ( RtAudioError &error ) {
+        std::cout << "Erro" << std::endl;
 	    error.printMessage();
         return;
 	}

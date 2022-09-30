@@ -5,24 +5,19 @@
 #include <vector>
 #include "include/utils.hpp"
 
-Markov::Markov(std::vector<int> m) {
-    estado = c1;
-    n_estados = std::sqrt(m.size());
-    // int i, j;
-    std::vector<int> matriz_transicao(m);
+// Markov::Markov(std::vector<int> m) {
+//     estado = c1;
+//     n_estados = std::sqrt(m.size());
+//     // int i, j;
+//     std::vector<int> matriz_transicao(m);
 
-    // for (i = 0; i < n_estados; i++) {    
-    //     for (j = 0; j < n_estados; j++)
-    //         matriz_transicao[i * n_estados + j] = m[i * n_estados + j];
-    // }
-}
-
-Markov::~Markov() {
-    // free(matriz_transicao);
-}
+//     // for (i = 0; i < n_estados; i++) {    
+//     //     for (j = 0; j < n_estados; j++)
+//     //         matriz_transicao[i * n_estados + j] = m[i * n_estados + j];
+//     // }
+// }
 
 void Markov::proximo_estado() {
-    std::random_device rd;
     estado = rd() % n_estados;
 }
 
