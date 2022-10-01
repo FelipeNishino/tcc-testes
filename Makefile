@@ -5,14 +5,15 @@ CC = g++
 sources = $(wildcard src/*.cpp)
 objects = $(sources:.cpp=.o)
 CFLAGS = -Wall -g
+STATIC_LIBS = libs/libjsoncpp.a libs/libcurlpp.a libs/libmidifile.a
 # CFLAGS = -Wall -g
 flags = -Wall -D__LITTLE_ENDIAN__ -D__LINUX_ALSA__ -I/usr/include/stk -std=c++20
 
 $(exec): $(objects)
-	g++ $(objects) libs/libcurlpp.a libs/libmidifile.a $(flags) -o $(exec) -lstk
+	g++ $(objects) $(STATIC_LIBS) $(flags) -o $(exec) -lstk -Llib -lcurl
 
 %.o: %.cpp include/%.hpp
-	g++ -c $(flags) $< -o $@ -lstk
+	g++ -c $(flags) $< -o $@ -lstk -Llib -lcurl
 
 clean:
 	-rm $(exec)
@@ -29,6 +30,8 @@ example:
 swift:
 	swift src/swift/main.swift
 
+test: $(exec)
+	./$(exec) asd zxc 123 fv
 # build:
 # 	g++ -c $(flags) -o $(exec) stk-test.cpp -lstk
 
