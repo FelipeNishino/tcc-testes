@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <random>
-#include "utils.h"
+#include "utils.hpp"
 
 class Markov {
     public:
