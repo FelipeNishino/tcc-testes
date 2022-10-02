@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "include/libcurlpp/curlpp/Infos.hpp"
 #include "include/libmidifile/MidiFile.h"
 #include "include/request_manager.hpp"
 
@@ -37,6 +38,15 @@ void help() {
     if ((flags & 1 << 2) == 1 << 2) {
         std::cout << "\nInvalid flag usage: received only --no-play, won't do anything\n";
     }
+}
+
+void requests() {
+    RequestManager rm;
+    rm.request_track_feature_by_ids({
+        "3zLTPuucd3e6TxZnu2dlVS",
+        // "5uGZZvIVksQSU7WaVJch5Q"
+    });
+    // rm.request_track_feature_by_ids();
 }
 
 int main(int argc, char* argv[]) {
@@ -70,28 +80,27 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (flags & FLAG_INVALID || (flags & 1 << 2) == 1 << 2) {
+    if (flags & FLAG_INVALID || !(flags ^ 1 << 2)) {
         help();
         exit(EXIT_FAILURE);
     }
 
-    if (flags & FLAG_MAKE_REQUEST ) std::cout << "flag req" << '\n';
-    if (flags & FLAG_SET_DEVICE ) std::cout << "flag dev" << '\n';
+    if (flags & FLAG_MAKE_REQUEST )  {
+        std::cout << "Performing requests..." << '\n';
+        requests();
+    }
+
+    if (flags & FLAG_SET_DEVICE ) {
+        std::cout << "flag dev" << '\n';
+        DeviceManager::set_flag(DeviceManager::FORCE_SET_DEVICE); 
+    }
     if (flags & FLAG_NO_PLAY ) std::cout << "flag nop" << '\n';
     if (!flags) std::cout << "no flags" << '\n';
 
-    // RequestManager rm;
-    // rm.perform_request();
-    // rm.request_track_feature_by_id("3zLTPuucd3e6TxZnu2dlVS");
-    // rm.request_track_feature_by_ids({
-        // "3zLTPuucd3e6TxZnu2dlVS",
-        // "5uGZZvIVksQSU7WaVJch5Q"
-    // });
-    // rm.request_track_feature_by_id("5uGZZvIVksQSU7WaVJch5Q");
     
     // std::vector<BYTE> decodedData = base64_decode(encodedData);
 
     // Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     // engine->play();
-
+    exit(EXIT_SUCCESS);
 }

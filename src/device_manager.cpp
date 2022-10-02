@@ -7,8 +7,16 @@
 #include "stk/RtAudio.h"
 #include <string>
 
+#define USERCONFIG_DIR "data/userconfig.txt"
+
+unsigned int DeviceManager::flags = 0;
+
 DeviceManager::DeviceManager() {
     device_id = -1;
+    
+    if (flags & FORCE_SET_DEVICE) {
+        set_default_device();
+    }
     // device_id = (int*) malloc(sizeof(int));
     // device_id = nullptr;
     // namespace fs = std::filesystem;
@@ -22,7 +30,7 @@ DeviceManager::DeviceManager() {
 
 int DeviceManager::get_id_from_name() {
     RtAudio dac;
-    int devicecount = dac.getDeviceCount();
+    unsigned int devicecount = dac.getDeviceCount();
     for (unsigned int i = 0; i < devicecount; i++) {
         if (dac.getDeviceInfo(i).name.compare(device_name) == 0)
         return i;
@@ -32,7 +40,7 @@ int DeviceManager::get_id_from_name() {
 
 int DeviceManager::set_default_device() {
     RtAudio dac;
-    int devicecount = dac.getDeviceCount();
+    unsigned int devicecount = dac.getDeviceCount();
     for (unsigned int i = 0; i < devicecount; i++) {
 		std::cout << dac.getDeviceInfo(i).name << " - " << i << '\n';
 	}
@@ -41,7 +49,7 @@ int DeviceManager::set_default_device() {
     std::string input;
     std::cin >> input;
     choosen_device = std::stoi(input);
-    std::fstream file("userconfig.txt", std::ios::out);
+    std::fstream file(USERCONFIG_DIR, std::ios::out);
     if (file.fail()) {
         std::cout << "deu ruim" << std::endl;
         file.close();
@@ -54,7 +62,7 @@ int DeviceManager::set_default_device() {
 
 int DeviceManager::get_device_id() {
     if (device_id < 0) {
-        std::fstream file("userconfig.txt", std::ios::in);
+        std::fstream file(USERCONFIG_DIR, std::ios::in);
         if (file.fail()) {
             file.close();
             set_default_device();
