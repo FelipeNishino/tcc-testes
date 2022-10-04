@@ -30,8 +30,8 @@ example:
 swift:
 	swift src/swift/main.swift
 
-test: $(exec)
-	./$(exec) asd zxc 123 fv
+request: $(exec)
+	./$(exec) -f --no-play
 # build:
 # 	g++ -c $(flags) -o $(exec) stk-test.cpp -lstk
 
