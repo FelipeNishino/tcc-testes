@@ -10,6 +10,7 @@
 #include "include/libcurlpp/curlpp/Infos.hpp"
 #include "include/libmidifile/MidiFile.h"
 #include "include/request_manager.hpp"
+#include "include/emotion_categorizer.hpp"
 
 static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "--no-play"};
 static unsigned int flags{};
@@ -42,10 +43,14 @@ void help() {
 
 void requests() {
     RequestManager rm;
-    rm.request_track_feature_by_ids({
-        "3zLTPuucd3e6TxZnu2dlVS",
-        // "5uGZZvIVksQSU7WaVJch5Q"
-    });
+    
+    // rm.request_track_feature_by_id({
+    //     "3zLTPuucd3e6TxZnu2dlVS",
+    //     "5uGZZvIVksQSU7WaVJach5Q",
+    //     "2VgU1C40z6KtqDs2r6w1q4",
+    // });
+    rm.request_track_feature_from_list();
+    EmotionCategorizer::categorize();
     // rm.request_track_feature_by_ids();
 }
 
@@ -96,7 +101,6 @@ int main(int argc, char* argv[]) {
     }
     if (flags & FLAG_NO_PLAY ) std::cout << "flag nop" << '\n';
     if (!flags) std::cout << "no flags" << '\n';
-
     
     // std::vector<BYTE> decodedData = base64_decode(encodedData);
 

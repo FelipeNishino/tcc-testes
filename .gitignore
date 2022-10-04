@@ -2,6 +2,7 @@
 *.d
 src/swift
 userconfig.txt
+data
 # Compiled Object files
 *.slo
 *.lo
