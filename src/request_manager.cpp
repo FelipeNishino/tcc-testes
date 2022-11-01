@@ -49,7 +49,7 @@ void RequestManager::retrieve_auth_token() {
 		long response_code = curlpp::infos::ResponseCode::get(request);
 		switch (response_code) {
 			case 200 ... 299:
-				std::cout << "Sucesso: " << response_code << '\n';
+				std::cout << "Retrieved auth token: " << response_code << '\n';
 				result_json = nlohmann::json::parse(result_stream.str());
 				auth_token = "Bearer " + std::string(result_json["access_token"]);
 				auth_expiration = std::chrono::system_clock::now();
@@ -114,7 +114,7 @@ void RequestManager::request_track_feature_from_list(std::string filename) {
 		std::list<std::string> header {
 			"Content-Type: application/json",
 			"Authorization: " + auth_token,
-		}; 
+		};
 		std::ostringstream result_stream;
 		std::string ids;
 		std::vector<curlpp::OptionBase *> opt{
@@ -128,6 +128,8 @@ void RequestManager::request_track_feature_from_list(std::string filename) {
 			std::cout << "deu ruim" << std::endl;
         	file.close();
     	}
+
+		// TODO: Verificar se a lista está vazia
 
 		while (true) {
 			if (song_list.size() < SPOTIFY_MAX_TRACK_REQ && !file.eof()) {
@@ -175,16 +177,16 @@ void RequestManager::request_track_feature_from_list(std::string filename) {
 			std::cout << "deu ruim" << std::endl;
         	output_file.close();
     	}
-
+		int i{};
 		while(true) {
-			int i = [result_jsons]()->int {
+			i = [result_jsons](int i)->int {
 				int j{};
 				for (auto feature : result_jsons[0]["audio_features"]) {
 					if(feature.is_null()) return j;
 					j++;
 				}
 				return -1;
-			}();
+			}(i);
 			if (i > 0)
 				result_jsons[0]["audio_features"].erase(i);
 			else
@@ -289,6 +291,7 @@ void RequestManager::perform_request(curlpp::Easy *req) {
 	const auto interval = duration_cast<seconds>(auth_expiration.time_since_epoch());
 	// TODO: N TA FUNFANDO
 	if (interval.count() > 3600) {
+		std::cout << "Intervalo: " << interval.count() << "\n";
 		// retrieve_auth_token();
 	}
 
