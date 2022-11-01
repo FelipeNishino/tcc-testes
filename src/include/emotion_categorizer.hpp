@@ -19,8 +19,6 @@ class EmotionCategorizer {
             using nlohmann::json;
             std::fstream f;
             json features_json;
-            double valence;
-            double energy;
             f.open(filename, std::ios::in);
             if (f.fail())
 			    std::cout << "deu ruim" << std::endl;
@@ -31,14 +29,16 @@ class EmotionCategorizer {
             
             for (auto &features : features_json["audio_features"]) {
                 // abs(1-;2*(1-0.8));
-                valence = features["valence"];
-                energy = features["energy"];
-                features["emotion"] = {
-                    {"happy", (valence > 0.5 ? std::abs(1-2*(1-valence)) : 0)},
-                    {"sad", (valence < 0.5 ? std::abs(1-2*(1-valence)) : 0)},
-                    {"tense", (energy > 0.5 ? std::abs(1-2*(1-energy)) : 0)},
-                    {"monotone", (energy < 0.5 ? std::abs(1-2*(1-energy)) : 0)}
-                };
+                features["emotion"] = [features]()->std::string{
+                    if (features["valence"] > 0.5) return (features["energy"] > 0.5 ? "happy" : "relaxed");
+                    else return (features["energy"] > 0.5 ? "angry" : "sad");
+                }();
+                // features["emotion"] = {
+                    // {"happy", (valence > 0.5 ? std::abs(1-2*(1-valence)) : 0)},
+                    // {"sad", (valence < 0.5 ? std::abs(1-2*(1-valence)) : 0)},
+                    // {"tense", (energy > 0.5 ? std::abs(1-2*(1-energy)) : 0)},
+                    // {"monotone", (energy < 0.5 ? std::abs(1-2*(1-energy)) : 0)}
+                // };
             }
             
             f.open("data/features2.json", std::ios::out);
