@@ -1,5 +1,5 @@
-#include "include/request_manager.hpp"
-#include "include/encoder.hpp"
+#include "request_manager.hpp"
+#include "encoder.hpp"
 #include <chrono>
 #include <exception>
 #include <cstdlib>
@@ -9,8 +9,8 @@
 #include <sstream>
 #include <cerrno>
 #include <fstream>
-#include "include/libcurlpp/curlpp/Infos.hpp"
-#include "include/libjson/json.hpp"
+#include "libcurlpp/curlpp/Infos.hpp"
+#include "libjson/json.hpp"
 
 using std::chrono::seconds;
 using std::chrono::duration_cast;

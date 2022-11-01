@@ -14,16 +14,10 @@ struct midi_containing_dir_empty : public std::exception {
 
 class MidiAnalyzer {
     private:
-        static std::string containing_dir;
+        std::string containing_dir;
     public:
-        static void assert_path_is_set() {
-            if (containing_dir.empty()) throw midi_containing_dir_empty(); 
-        }
-
-        static void set_containing_dir(std::string path) {
-            containing_dir = path;
-        }
-
+        void set_containing_dir(std::string path) { containing_dir = path; }
+        void assert_containing_dir_path();
         nlohmann::json analyze(std::vector<std::string> midi_list);
 };
 

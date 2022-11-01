@@ -1,6 +1,6 @@
-#include "include/midi_analyzer.hpp"
-#include "include/libmidifile/MidiEvent.h"
-#include "include/libmidifile/MidiFile.h"
+#include "midi_analyzer.hpp"
+#include "libmidifile/MidiEvent.h"
+#include "libmidifile/MidiFile.h"
 #include <array>
 #include <iostream>
 /*
@@ -8,8 +8,13 @@ NOTE ON/OFF
 DELTA? EVENTCODE NOTA VELOCITY 
 ' = DECIMAL
 */
+
+void MidiAnalyzer::assert_containing_dir_path() {
+    if (containing_dir.empty()) throw midi_containing_dir_empty(); 
+}
+
 nlohmann::json MidiAnalyzer::analyze(std::vector<std::string> midi_list) {
-    assert_path_is_set();
+    assert_containing_dir_path();
     smf::MidiEvent last_note_on;
     smf::MidiFile midifile;
     std::array<std::array<int, 13>, 13> note_occurrence;

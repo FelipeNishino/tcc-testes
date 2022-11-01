@@ -1,9 +1,9 @@
-#include "include/markov.hpp"
+#include "markov.hpp"
 #include <cmath>
 #include <random>
 #include <iostream>
 #include <vector>
-#include "include/utils.hpp"
+#include "utils.hpp"
 
 // Markov::Markov(std::vector<int> m) {
 //     estado = c1;

@@ -1,17 +1,17 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include "include/engine.hpp"
-#include "include/device_manager.hpp"
+#include "engine.hpp"
+#include "device_manager.hpp"
 #include <iterator>
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "include/libcurlpp/curlpp/Infos.hpp"
-#include "include/libmidifile/MidiFile.h"
-#include "include/midi_analyzer.hpp"
-#include "include/request_manager.hpp"
-#include "include/emotion_categorizer.hpp"
+#include "libcurlpp/curlpp/Infos.hpp"
+#include "libmidifile/MidiFile.h"
+#include "midi_analyzer.hpp"
+#include "request_manager.hpp"
+#include "emotion_categorizer.hpp"
 
 static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
 static unsigned int flags{};
@@ -108,7 +108,7 @@ void help() {
 void analyzer() {
     MidiAnalyzer ma;
     
-    MidiAnalyzer::set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
+    ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
     ma.analyze(MIDIS);
 }
 
