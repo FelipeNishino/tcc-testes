@@ -73,16 +73,19 @@ void convert() {
     smf::MidiFile midifile;
     int i = 0;
     std::string output;
-    for (i = 0; i<40; i++) {
-        midifile.read(MIDIS[i]);
+    std::vector<std::string> names = {"teste_nnnc.mid", "teste_cnnn.mid"};
+    // std::vector<std::string> names = MIDIS;
+    for (i = 0; i < names.size(); i++) {
+        midifile.read("/home/nishi/Projects/tcc-testes/data/midi/" + names[i]);
         
         if (!midifile.status()) {
             std::cout << "FALHA, ";
         }
-        std::cout << "tracks: " << midifile.getTrackCount() << ", song: " << MIDIS[i] << '\n';
+        std::cout << "tracks: " << midifile.getTrackCount() << ", song: " << names[i] << '\n';
         
-        output = MIDIS[i];
+        output = names[i];
         output.replace(output.length() - 3, 3, "txt");
+        // midifile.joinTracks();
         midifile.writeBinascWithComments(output);
         // std::cout << output << '\n';
     }
@@ -109,7 +112,8 @@ void analyzer() {
     MidiAnalyzer ma;
     
     ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
-    ma.analyze(MIDIS);
+    // ma.analyze(MIDIS);
+    ma.analyze_list({"Metal/6-Metallica_One.mid"});
 }
 
 void requests() {
