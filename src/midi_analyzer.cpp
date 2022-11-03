@@ -1,15 +1,40 @@
 #include "midi_analyzer.hpp"
 #include "libmidifile/MidiEvent.h"
+#include "libmidifile/MidiEventList.h"
 #include "libmidifile/MidiFile.h"
 #include <array>
 #include <iostream>
 #include <list>
 #include <algorithm>
+#include <cmath>
+#include "libjson/json.hpp"
 /*
 NOTE ON/OFF
 DELTA? EVENTCODE NOTA VELOCITY 
 ' = DECIMAL
 */
+
+void MidiAnalyzer::display_note_ocurrence(TrackInfo track) {
+    if (track.note_count == 0) {
+        std::cout << "Track doesn't have any notes, skipping...\n";
+        // return;
+    }
+    std::array<std::string, 13> labels={ "C", "c", "D", "d", "E", "F", "f", "G", "g", "A", "a", "B", "X"};
+        for (auto note : {" ", "C", "c", "D", "d", "E", "F", "f", "G", "g", "A", "a", "B", "X"}) {
+            std::cout << note << " ";
+        }
+        std::cout << "\n";
+        int k = 0;
+        for (auto d1 : track.note_matrix) {
+            std::cout << labels[k] << " ";
+            for (int val : d1) {
+                std::cout << val << " ";
+            }
+            std::cout << "\n";
+            k++;
+        }
+        std::cout << "\n";
+}
 
 void MidiAnalyzer::assert_containing_dir_path() {
     if (containing_dir.empty()) throw midi_containing_dir_empty(); 
@@ -26,129 +51,217 @@ EventType MidiAnalyzer::get_event_type(smf::MidiEvent ev) {
         return EventType::key_signature;
     if (ev.isTempo())
         return EventType::tempo;
-    
     return EventType::other;
 }
-void MidiAnalyzer::analyze(std::string midi_name) {
-    smf::MidiEvent last_note_on;
-    NoteOff last_note_off;
+
+MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
+    MidiFeatures feat;
+    TrackState st;
     smf::MidiFile midifile;
-    CurrentNote curr_note;
-    LastNoteEvent last_note_event;
     std::_List_iterator<int> find_it;
-    bool first_note_on = true;
-    std::array<std::array<int, 13>, 13> note_occurrence{0};
     std::list<int> chord_list;
     int j = 1;
-
+    std::vector<TrackInfo> tracks;
     midifile.read(containing_dir + midi_name);
     if (!midifile.status()) {
         std::cout << "Error opening file " << midi_name << '\n';
-        return;
+        return feat;
     }
+
+    // midifile.joinTracks();
 
     if (midifile.isAbsoluteTicks()) {
         midifile.deltaTicks();
     }
+    
+    std::cout << "\nSong: " << midi_name << '\n';
     std::cout << "Tracks: " << midifile.getTrackCount() << '\n';
     for (int i = 0; i < midifile.getTrackCount(); i++) {
-        std::cout << "Event count: " << midifile[i].getEventCount() << '\n';
+        tracks.push_back(TrackInfo{});
+        // std::cout << "Event count: " << midifile[i].getEventCount() << '\n';
         j = 0;
-        first_note_on = true;
+        st.prev_on.set = false;
+        st.prev_off.set = false;
+
         while (j < midifile[i].getEventCount()) {
-            curr_note.note = midifile[i][j];
-            curr_note.key = midifile[i][j].getKeyNumber();
-            
+            st.curr_ev.ev = midifile[i][j];
+            st.curr_ev.key = st.curr_ev.ev.getKeyNumber();
             switch (get_event_type(midifile[i][j])) {
                 case note_on:
-                    std::cout << "Note on\n";
-                    if (first_note_on) {
-                        std::cout << "First note\n";
-                        first_note_on = false;
-                        last_note_on = curr_note.note;
-                        j++;
-                        last_note_event.note = midifile[i][j];
-                        last_note_event.type = on;
-                        continue;
-                    }
-                    // if (chord_list.empty()) chord_list.push_back(curr_note.key);
-                    if (curr_note.note.tick == 0 && last_note_event.type == on) {
-                        if (chord_list.empty()) chord_list.push_back(last_note_on.getKeyNumber());
-                        chord_list.push_back(curr_note.key);
-                    }
-                    else {
-                        if (chord_list.size() == 1 && chord_list.front() == last_note_on.getKeyNumber()) chord_list.clear();
-                        last_note_on = curr_note.note;
-                    }
-                    last_note_event.note = midifile[i][j];
-                    last_note_event.type = on;
-                    break;
-                case note_off:
-                    std::cout << "Note off\n";
-                    find_it = std::find(chord_list.begin(), chord_list.end(), curr_note.key);
-                    if (find_it != chord_list.end()) {
-                        std::cout << "Nota acorde\n";
-                        chord_list.erase(find_it);
-                        if (chord_list.empty()) {
-                            std::cout << "Finalizou um acorde\n";
-                            if (last_note_off.set) {
-                                std::cout << "Último note off: nota " << last_note_off.note.getKeyNumber() % 12 << ", Tipo: " << (last_note_off.type == chord ? "Acorde\n": "Nota\n");
-                                note_occurrence[(last_note_off.type == chord ? 12 : last_note_off.note.getKeyNumber() % 12)][12]++;
-                            }
-                            last_note_off.type = chord;
-                            last_note_off.set = true;
-                        }
-                    }
-                    else {
-                        std::cout << "Nota normal\n";
-                        if (last_note_off.set) {
-                            std::cout << "Tem nota anterior: " << last_note_off.note.getKeyNumber() % 12 << ", nota atual: " << curr_note.key % 12 << '\n';
-                            note_occurrence[(last_note_off.type == chord ? 12 : last_note_off.note.getKeyNumber() % 12)][curr_note.key % 12]++;                            
+                    // std::cout << "Note on\n";
+                    if (st.prev_on.set) {
+                        // std::cout << "First note\n";
+                        // j++;
+                        // st.prev_note_type = on;
+                        // continue;
+                    
+                        if (st.curr_ev.ev.tick == 0 && st.prev_note_type == on) {
+                            if (chord_list.empty()) chord_list.push_back(st.prev_on.key);
+                            chord_list.push_back(st.curr_ev.key);
                         }
                         else {
-                            std::cout << "Não Tem nota anterior\n";
+                            if (chord_list.size() == 1 && chord_list.front() == st.prev_on.key) chord_list.clear();
+                            st.prev_on = st.curr_ev;
                         }
-                        last_note_off.type = note;
-                        last_note_off.set = true;
-                        last_note_off.note = curr_note.note;
                     }
-                    last_note_event.note = midifile[i][j];
-                    last_note_event.type = off;
+                    st.prev_on.ev = st.curr_ev.ev;
+                    st.prev_on.key = st.curr_ev.key;
+                    st.prev_on.set = true;
+                    st.prev_note_type = on;
+                    tracks[i].note_count++;
+                    break;
+                case note_off:
+                    // std::cout << "Note off\n";
+                    find_it = std::find(chord_list.begin(), chord_list.end(), st.curr_ev.key);
+                    if (find_it != chord_list.end()) {
+                        // std::cout << "Nota acorde\n";
+                        chord_list.erase(find_it);
+                        if (chord_list.empty()) {
+                            // std::cout << "Finalizou um acorde\n";
+                            if (st.prev_off.set) {
+                                // std::cout << "Último note off: nota " << st.prev_off.key % 12 << ", Tipo: " << (st.prev_off.component == chord ? "Acorde\n": "Nota\n");
+                                tracks[i].note_matrix[(st.prev_off.component == chord ? 12 : st.prev_off.key % 12)][12]++;
+                            }
+                            st.prev_off.component = chord;
+                            st.prev_off.set = true;
+                        }
+                    }
+                    else {
+                        // std::cout << "Nota normal\n";
+                        if (st.prev_off.set) {
+                            // std::cout << "Tem nota anterior: " << st.prev_off.key % 12 << ", nota atual: " << st.curr_ev.key % 12 << '\n';
+                            tracks[i].note_matrix[(st.prev_off.component == chord ? 12 : st.prev_off.key % 12)][st.curr_ev.key % 12]++;                            
+                        }
+                        else {
+                            // std::cout << "Não Tem nota anterior\n";
+                        }
+                        st.prev_off.ev = st.curr_ev.ev;
+                        st.prev_off.key = st.curr_ev.key;
+                        st.prev_off.component = note;
+                        st.prev_off.set = true;
+                    }
+                    st.prev_note_type = off;
                     break;
                 case time_signature:
+                    // std::cout << "Mudança de compasso\n";// << st.curr_ev.ev.() << "\n";
                     break;
                 case key_signature:
+                    // std::cout << "Mudança de tom\n";// << st.curr_ev.ev.ge << "\n";
                     break;
                 case tempo:
+                    // tracks[i].tempos.push_back(TempoInfo());
+                    // double bpm = st.curr_ev.ev.getTempoBPM();
+                    [&tracks, i](double _bpm){
+                        double bpm = _bpm;
+                        if (fmod(bpm, 5)) {
+                            int snap_dist = floor(bpm/5)*5;
+                            bpm = (bpm - snap_dist < 2.5 ? snap_dist : snap_dist + 5);
+                        }
+                        tracks[i].bpm_timestamp[bpm].push_back(tracks[i].note_count);
+                    }(st.curr_ev.ev.getTempoBPM());
+                    // std::cout.precision(20);
+                    // std::cout << "Mudança de tempo: " << st.curr_ev.ev.getTempoBPM() << "\n";
+                    
                     break;
                 case other:
-                    std::cout << "Other...\n";
+                    // std::cout << "Other...\n";
                     break;
             }
             j++;
         }
-        std::array<std::string, 13> labels={ "C", "c", "D", "d", "E", "F", "f", "G", "g", "A", "a", "B", "X"};
-        for (auto note : {" ", "C", "c", "D", "d", "E", "F", "f", "G", "g", "A", "a", "B", "X"}) {
-            std::cout << note << " ";
-        }
-        std::cout << "\n";
-        int k = 0;
-        for (auto d1 : note_occurrence) {
-            std::cout << labels[k] << " ";
-            for (int val : d1) {
-                std::cout << val << " ";
+        // display_note_ocurrence(tracks[i]);
+        // std::cout << "Tempos: \n";
+        for (auto pair : tracks[i].bpm_timestamp) {
+            std::cout << "Tempo: " << pair.first << " notestamps: ";
+            for (auto notestamps : pair.second) {
+                std::cout << notestamps << " ";
             }
             std::cout << "\n";
-            k++;
         }
-        std::cout << "\n";
-        note_occurrence = std::array<std::array<int, 13>, 13>{0};
+        // tracks[i].note_matrix = std::array<std::array<int, 13>, 13>{0};
     }
+    // Soma matrizes de notas
+    for (auto track : tracks) {
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                feat.track_info.note_matrix[i][j] += track.note_matrix[i][j];    
+            }
+        }
+        for (auto bpm_freq_pair : track.bpm_timestamp) {
+            feat.bpms.insert(bpm_freq_pair.first);
+        }
+        feat.track_info.note_count += track.note_count;
+    }
+
+    return feat;
 }
 
-void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list) {
+void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<std::string> spotify_ids) {
+    using nlohmann::json;
     assert_containing_dir_path();
+    std::vector<MidiFeatures> results;
     for (auto midi_name : midi_list) {
-        analyze(midi_name);
+        results.push_back(analyze(midi_name));
     }
+    json emotion_json;
+    emotion_json["emotions"] = {
+        {"happy", {}},
+        {"relaxed", {}},
+        {"angry", {}},
+        {"sad", {}},
+    };
+    json features_json;
+    std::fstream f;
+
+    f.open("data/features2.json", std::ios::in);
+    if (f.fail())
+        std::cout << "deu ruim" << std::endl;
+    else
+        features_json = json::parse(f);         
+    f.close();
+
+    for (int i = 0; i < results.size(); i++) {
+        std::cout << midi_list[i] << '\n';
+        std::cout << spotify_ids[i] << '\n';
+        std::cout << "Note count: " << results[i].track_info.note_count << '\n';
+
+        std::cout << '\n';
+        features_json["audio_features"][i]["midi_features"] = {
+            {"note_matrix", results[i].track_info.note_matrix},
+            {"note_count", results[i].track_info.note_count},
+            {"bpms", results[i].bpms},
+        };
+        // auto it = std::find(features_json["audio_features"].begin(), features_json["audio_features"].end(), spotify_ids[i]);
+        // if (it != features_json["audio_features"].end())
+        //     std::cout << "Element found in myvector: " << *it << '\n';
+        //     it
+        // else
+        //     std::cout << "Element not found in myvector\n";
+        // std::cout << "\n\n";
+        emotion_json["emotions"][features_json["audio_features"][i]["emotion"]].push_back(features_json["audio_features"][i]);
+        // std::cout << "happy " << emotion_json["emotions"]["happy"].size() << "\n";
+        // std::cout << "angry " << emotion_json["emotions"]["angry"].size() << "\n";
+        // std::cout << "relaxed " << emotion_json["emotions"]["relaxed"].size() << "\n";
+        // std::cout << "sad " << emotion_json["emotions"]["sad"].size() << "\n";
+        std::cout << "\n\n";
+        
+    }
+    
+    f.open("data/features_midi.json", std::ios::out);
+    if (f.fail())
+        std::cout << "deu ruim" << std::endl;
+    else
+        f << features_json.dump(4);
+    f.close();
+
+    f.open("data/emotion_midi.json", std::ios::out);
+    if (f.fail())
+        std::cout << "deu ruim" << std::endl;
+    else
+        f << emotion_json.dump(4);
+    f.close();
+
+     
+     
+
 }
