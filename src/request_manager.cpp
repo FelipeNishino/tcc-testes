@@ -187,8 +187,10 @@ void RequestManager::request_track_feature_from_list(std::string filename) {
 				}
 				return -1;
 			}(i);
-			if (i > 0)
+			if (i >= 0) {
+                std::cout << "ACHOU NULO NA MÚSICA " << i << "\n";
 				result_jsons[0]["audio_features"].erase(i);
+            }
 			else
 				break;
 		}
