@@ -4,18 +4,16 @@
 #include <vector>
 #include <random>
 #include "utils.hpp"
+#include <chrono>
 
 class Markov {
     public:
-        int estado;
-        int n_estados;
-        std::vector<int> matriz_transicao;
-        std::random_device rd;
-        Markov(std::vector<int> m):
-        estado(c1),n_estados(std::sqrt(m.size())),matriz_transicao(m)
-        {}
+        Markov(std::vector<std::vector<double>> m);
+        std::vector<std::vector<double>> matriz_transicao;
+        // std::random_device rd;
+        std::default_random_engine generator;
         // ~Markov();
-        void proximo_estado();
+        int proximo_estado(int atual);
         void display();
 };
 

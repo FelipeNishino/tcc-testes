@@ -115,7 +115,8 @@ void convert() {
     smf::MidiFile midifile;
     int i = 0;
     std::string output;
-    std::vector<std::string> names = {"teste_nnnc.mid", "teste_cnnn.mid"};
+    // std::vector<std::string> names = {"teste_nnnc.mid", "teste_cnnn.mid"};
+    std::vector<std::string> names = {"Metal/6-Metallica_One.mid"};
     // std::vector<std::string> names = MIDIS;
     for (i = 0; i < names.size(); i++) {
         midifile.read("/home/nishi/Projects/tcc-testes/data/midi/" + names[i]);
@@ -127,7 +128,7 @@ void convert() {
         
         output = names[i];
         output.replace(output.length() - 3, 3, "txt");
-        // midifile.joinTracks();
+        midifile.joinTracks();
         midifile.writeBinascWithComments(output);
         // std::cout << output << '\n';
     }
@@ -154,18 +155,13 @@ void analyzer() {
     MidiAnalyzer ma;
     
     ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
-    // ma.analyze(MIDIS);
-    ma.analyze_list({"Metal/6-Metallica_One.mid"});
+    ma.analyze_list(MIDIS, MIDIS_SPOTIFY_IDS);
+    // ma.analyze_list({"Metal/6-Metallica_One.mid"});
+    // ma.analyze_list({"teste_nnnc.mid", "teste_cnnn.mid"});
 }
 
 void requests() {
     RequestManager rm;
-    
-    // rm.request_track_feature_by_id({
-    //     "3zLTPuucd3e6TxZnu2dlVS",
-    //     "5uGZZvIVksQSU7WaVJach5Q",
-    //     "2VgU1C40z6KtqDs2r6w1q4",
-    // });
     rm.request_track_feature_from_list();
     EmotionCategorizer::categorize();
     // rm.request_track_feature_by_ids();
@@ -227,13 +223,12 @@ int main(int argc, char* argv[]) {
     }
 
     if (flags & FLAG_SET_DEVICE ) {
-        std::cout << "flag dev" << '\n';
         DeviceManager::set_flag(DeviceManager::FORCE_SET_DEVICE); 
     }
     if (flags & FLAG_NO_PLAY) {
         exit(EXIT_SUCCESS);
     }
-    if (!flags) std::cout << "no flags" << '\n';
+    // if (!flags) std::cout << "no flags" << '\n';
 
     Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     engine->play();
