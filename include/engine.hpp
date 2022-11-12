@@ -1,13 +1,11 @@
 #ifndef TCC_ENGINE_H
 #define TCC_ENGINE_H
 
+#include <atomic>
+#include <map>
+#include <mutex>
 #include "markov.hpp"
 #include "stk_wrapper.hpp"
-#include "utils.hpp"
-#include <array>
-#include <mutex>
-#include <map>
-#include <atomic>
 
 // class Engine {
 //     public:

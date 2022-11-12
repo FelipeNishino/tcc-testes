@@ -1,14 +1,14 @@
 #ifndef TCC_MIDI_ANALYZER_H
 #define TCC_MIDI_ANALYZER_H
 
-#include "libmidifile/MidiEvent.h"
-#include "libmidifile/MidiFile.h"
 #include <array>
+#include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include <list>
-#include <set>
+#include "libmidifile/MidiEvent.h"
+#include "libmidifile/MidiFile.h"
 
 struct midi_containing_dir_empty : public std::exception {
    	const char * what () const throw () {

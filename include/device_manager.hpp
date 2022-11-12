@@ -1,9 +1,7 @@
 #ifndef TCC_DEVICEMANAGER_H
 #define TCC_DEVICEMANAGER_H
+
 #include <string>
-#include <fstream>
-#include <iostream>
-#include <sys/types.h>
 
 class DeviceManager {
     private:

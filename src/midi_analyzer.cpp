@@ -1,14 +1,12 @@
-#include "midi_analyzer.hpp"
-#include "engine.hpp"
-#include "libmidifile/MidiEvent.h"
-#include "libmidifile/MidiEventList.h"
-#include "libmidifile/MidiFile.h"
-#include <array>
-#include <iostream>
-#include <list>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include "libjson/json.hpp"
+#include "libmidifile/MidiEventList.h"
+#include "engine.hpp"
+#include "midi.hpp"
+#include "midi_analyzer.hpp"
+#include "utils.hpp"
 /*
 NOTE ON/OFF
 DELTA? EVENTCODE NOTA VELOCITY 

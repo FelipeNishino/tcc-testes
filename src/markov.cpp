@@ -1,8 +1,6 @@
-#include "markov.hpp"
-#include <random>
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
+#include "markov.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
 

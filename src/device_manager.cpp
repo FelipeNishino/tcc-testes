@@ -1,11 +1,9 @@
-#include "device_manager.hpp"
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include "stk/RtAudio.h"
-#include <string>
 
 #define USERCONFIG_DIR "data/userconfig.txt"
 

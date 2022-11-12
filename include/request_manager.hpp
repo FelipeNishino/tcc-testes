@@ -1,8 +1,8 @@
 #ifndef TCC_REQUESTMANAGER_H
 #define TCC_REQUESTMANAGER_H
 
-#include <string>
 #include <chrono>
+#include <string>
 #include <vector>
 #include "libcurlpp/libcurlpp.h"
 

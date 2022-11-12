@@ -1,17 +1,14 @@
-#include "request_manager.hpp"
-#include "encoder.hpp"
-#include <chrono>
-#include <exception>
-#include <cstdlib>
-#include <ostream>
-#include <stdexcept>
-#include <vector>
-#include <sstream>
 #include <cerrno>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
-#include "libcurlpp/curlpp/Infos.hpp"
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
 #include "libjson/json.hpp"
+#include "encoder.hpp"
 #include "logger.hpp"
+#include "request_manager.hpp"
 
 using std::chrono::seconds;
 using std::chrono::duration_cast;

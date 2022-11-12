@@ -1,13 +1,11 @@
-#include "engine.hpp"
 #include <array>
 #include <functional>
 #include <iostream>
 #include <set>
-#include "libjson/json.hpp"
-#include "markov.hpp"
-#include "utils.hpp"
-#include <atomic>
 #include <thread>
+#include "libjson/json.hpp"
+#include "engine.hpp"
+#include "utils.hpp"
 
 /**
  * Static methods should be defined outside the class.

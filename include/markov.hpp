@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <random>
-#include "utils.hpp"
-#include <chrono>
 
 class Markov {
     public:

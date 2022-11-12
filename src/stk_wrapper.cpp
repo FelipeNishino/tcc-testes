@@ -1,18 +1,12 @@
-#include "stk_wrapper.hpp"
-#include "engine.hpp"
-#include "utils.hpp"
-#include "stk/BeeThree.h"
-#include "stk/RtAudio.h"
-#include "stk/Messager.h"
-#include "stk/Voicer.h"
-#include "stk/SKINImsg.h"
-#include "stk/RtAudio.h"
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
-#include <algorithm>
-#include <vector>
 #include <set>
+#include <vector>
 #include "device_manager.hpp"
+#include "engine.hpp"
+#include "midi.hpp"
+#include "stk_wrapper.hpp"
 #include "utils.hpp"
 
 StkWrapper::StkWrapper() {

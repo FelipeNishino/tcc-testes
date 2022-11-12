@@ -1,10 +1,9 @@
 #ifndef TCC_EMOTIONCATEGORIZER_H
 #define TCC_EMOTIONCATEGORIZER_H
 
-#include "libjson/json.hpp"
 #include <fstream>
-#include <iostream>
 #include <string>
+#include "libjson/json.hpp"
 #include "logger.hpp"
 
 class EmotionCategorizer {

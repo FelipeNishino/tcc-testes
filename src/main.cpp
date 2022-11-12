@@ -1,18 +1,18 @@
-#include <cstdlib>
+#include <algorithm>
 #include <functional>
+#include <getopt.h>
 #include <iostream>
-#include "engine.hpp"
-#include "device_manager.hpp"
 #include <iterator>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include "libcurlpp/curlpp/Infos.hpp"
 #include "libmidifile/MidiFile.h"
+#include "device_manager.hpp"
+#include "emotion_categorizer.hpp"
+#include "engine.hpp"
 #include "logger.hpp"
 #include "midi_analyzer.hpp"
 #include "request_manager.hpp"
-#include "emotion_categorizer.hpp"
 
 // static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
 static int flags{};
