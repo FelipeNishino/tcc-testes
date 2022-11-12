@@ -14,8 +14,8 @@
 #include "request_manager.hpp"
 #include "emotion_categorizer.hpp"
 
-static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
-static unsigned int flags{};
+// static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
+static int flags{};
 
 static const std::vector<std::string> MIDIS = {
 "Jazz/1-FLY_ME_TO_THE_MOON.mid",
@@ -104,13 +104,86 @@ static const std::vector<std::string> MIDIS_SPOTIFY_IDS = {
 };
 
 enum MAIN_FLAGS {
-    FLAG_MAKE_REQUEST = 1,
-    FLAG_SET_DEVICE = 1 << 1,
+    FLAG_REQUEST = 1,
+    FLAG_DEVICE = 1 << 1,
     FLAG_NO_PLAY = 1 << 2,
     FLAG_CONVERT = 1 << 3,
     FLAG_ANALYZE = 1 << 4,
-    FLAG_INVALID = 1 << 5
+    FLAG_INVALID = 1 << 5,
+    FLAG_HELP = 1 << 6,
 };
+
+void usage() {
+    std::cout << "Usage: ./tcc-test.out [OPTIONS]\n";
+    std::cout << "-f\t--audio-features\tMake request for spotify API\n";
+    std::cout << "-d\t--set-device\t\tForce prompt for setting default audio device\n";
+    std::cout << "-n\t--no-play\t\tDo not execute playback algorithm\n";
+    std::cout << "-c\t--convert\t\tConvert Midi file to txt\n";
+    std::cout << "-a\t--analyze\t\tAnalize Midi files\n";
+    if (flags == FLAG_NO_PLAY) {
+        std::cout << "\nInvalid flag usage: received only --no-play, won't do anything\n";
+    }
+}
+
+void get_options(int argc, char* const* argv) {
+    int c = 0;
+    int ret = 0;
+
+    static const struct option options[] = {
+        {"analyze",     optional_argument,  &flags, FLAG_ANALYZE},
+        {"convert",     no_argument,        &flags, FLAG_CONVERT},
+        {"set-device",  no_argument,        &flags, FLAG_DEVICE},
+        {"features",    optional_argument,  &flags, FLAG_REQUEST},
+        {"help",        no_argument,        &flags, FLAG_HELP},
+        {"loglevel",    required_argument,  0, 'l'},
+        {"no-play",     no_argument,        &flags, FLAG_NO_PLAY},
+        
+        {0,             0,                  0,  0 }
+    };
+    
+    int option_index = 0;
+
+    while ((c = getopt_long(argc, argv, "a::cdf::hl:n", options, &option_index)) != -1) {
+        switch (c) {
+        case 0:
+          /* If this option set a flag, do nothing else now. */
+            if (options[option_index].flag != 0) break;
+            printf("option %s", options[option_index].name);
+            if (optarg) printf(" with arg %s", optarg);
+            printf("\n");
+            break;
+        case 'a':
+            if (optarg)
+                MidiAnalyzer::set_containing_dir(optarg);
+            flags |= FLAG_ANALYZE;
+            break;
+        case 'c':
+            flags |= FLAG_CONVERT;
+            break;
+        case 'd':
+            flags |= FLAG_DEVICE;
+            break;
+        case 'f':
+            if (optarg)
+                RequestManager::set_songlist_dir(optarg);
+            flags |= FLAG_REQUEST;
+            break;
+        case 'h':
+            flags |= FLAG_HELP;
+            break;
+        case 'l':
+            std::cout << "Recebeu como arg pro l: " << optarg << '\n';
+            Logger::set_output_level(static_cast<Logger::LogLevel>(atoi(optarg)));
+            break;
+        case 'n':
+            flags |= FLAG_NO_PLAY;
+            break;
+        default:
+            usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+}
 
 void convert() {
     smf::MidiFile midifile;
@@ -140,18 +213,6 @@ void convert() {
     // midifile.writeBinascWithComments("/home/nishi/Projects/tcc-testes/data/midi/Reggae/7-Madness_-_Our_House.mscz.txt");
 }
 
-void help() {
-    std::cout << "Usage: ./tcc-test.out [OPTIONS]\n";
-    std::cout << "-f\t--audio-features\tMake request for spotify API\n";
-    std::cout << "-d\t--set-device\t\tForce prompt for setting default audio device\n";
-    std::cout << "-f\t--no-play\t\tDo not execute playback algorithm\n";
-    std::cout << "-c\t--convert\t\tConvert Midi file to txt\n";
-    std::cout << "-a\t--analyze\t\tAnalize Midi files\n";
-    if ((flags & 1 << 2) == 1 << 2) {
-        std::cout << "\nInvalid flag usage: received only --no-play, won't do anything\n";
-    }
-}
-
 void analyzer() {
     MidiAnalyzer ma;
     
@@ -172,64 +233,32 @@ int main(int argc, char* argv[]) {
     using std::string;
     string opt{};
     std::vector<string> argv_str(argc - 1);
-    std::transform(&argv[1], &argv[argc], argv_str.begin(), [](char* cs){
-        return string{cs};
-    });
-
-    for (auto const &opt : argv_str) {
-        bool valid_opt = [opt]()->bool {
-            auto str = std::find(MAIN_OPTIONS.begin(), MAIN_OPTIONS.end(), opt);
-            return str!=MAIN_OPTIONS.end();
-        }();
-        if (valid_opt) {
-            if (opt.compare("-f") == 0 || opt.compare("--audio-features") == 0) {
-            flags |= FLAG_MAKE_REQUEST;
-            }
-            else if (opt.compare("-d") == 0 || opt.compare("--set-device") == 0) {
-                flags |= FLAG_SET_DEVICE;
-            }
-            else if (opt.compare("-c") == 0 || opt.compare("--convert") == 0) {
-                flags |= FLAG_CONVERT;
-            }
-            else if (opt.compare("-a") == 0 || opt.compare("--analyze") == 0) {
-                flags |= FLAG_ANALYZE;
-            }
-            else {// if (opt.compare("--no-play") == 0) {
-                flags |= FLAG_NO_PLAY;
-            }
-        }
-        else {
-            std::cerr << "Unrecognized flag " << opt << '\n';
-            flags |= FLAG_INVALID;
-            break;
-        }
-    }
+    get_options(argc, argv);
 
     if (flags & FLAG_INVALID || !(flags ^ 1 << 2)) {
-        help();
+        usage();
         exit(EXIT_FAILURE);
-    }
-
-    if (flags & FLAG_MAKE_REQUEST )  {
-        std::cout << "Performing requests..." << '\n';
-        requests();
     }
 
     if (flags & FLAG_CONVERT )  {
         convert();
     }
 
+    if (flags & FLAG_REQUEST )  {
+        std::cout << "Performing requests..." << '\n';
+        requests();
+    }
+
     if (flags & FLAG_ANALYZE )  {
         analyzer();
     }
 
-    if (flags & FLAG_SET_DEVICE ) {
+    if (flags & FLAG_DEVICE ) {
         DeviceManager::set_flag(DeviceManager::FORCE_SET_DEVICE); 
     }
     if (flags & FLAG_NO_PLAY) {
         exit(EXIT_SUCCESS);
     }
-    // if (!flags) std::cout << "no flags" << '\n';
 
     Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     engine->play();
