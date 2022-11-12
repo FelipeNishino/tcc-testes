@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "libcurlpp/curlpp/Infos.hpp"
 #include "libmidifile/MidiFile.h"
+#include "logger.hpp"
 #include "midi_analyzer.hpp"
 #include "request_manager.hpp"
 #include "emotion_categorizer.hpp"

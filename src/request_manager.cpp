@@ -11,6 +11,7 @@
 #include <fstream>
 #include "libcurlpp/curlpp/Infos.hpp"
 #include "libjson/json.hpp"
+#include "logger.hpp"
 
 using std::chrono::seconds;
 using std::chrono::duration_cast;
@@ -199,6 +200,7 @@ void RequestManager::request_track_feature_from_list(std::string filename) {
 		// result_jsons[0]["audio_features"]
 		output_file << result_jsons[0].dump(4);
 		output_file.close();
+        Logger::log(Logger::LOG_INFO, "Requisições a Spotify API realizadas com successo");
 }
 
 void RequestManager::request_track_feature_by_id(std::vector<std::string> song_id) {

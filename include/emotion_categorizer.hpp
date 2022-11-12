@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "logger.hpp"
 
 class EmotionCategorizer {
     private:
@@ -21,7 +22,7 @@ class EmotionCategorizer {
             json features_json;
             f.open(filename, std::ios::in);
             if (f.fail())
-			    std::cout << "deu ruim" << std::endl;
+                Logger::log(Logger::LOG_ERROR, "Couldn't open file %s", filename.c_str());
             else
                 features_json = json::parse(f);         
             
