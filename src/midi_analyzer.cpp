@@ -61,11 +61,7 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     std::list<int> chord_list;
     int j = 1;
     std::vector<TrackInfo> tracks;
-    midifile.read(containing_dir + midi_name);
-    if (!midifile.status()) {
-        std::cout << "Error opening file " << midi_name << '\n';
-        return feat;
-    }
+    Midi::read_midi(&midifile, containing_dir + midi_name);
 
     // midifile.joinTracks();
 

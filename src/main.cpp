@@ -11,6 +11,7 @@
 #include "emotion_categorizer.hpp"
 #include "engine.hpp"
 #include "logger.hpp"
+#include "midi.hpp"
 #include "midi_analyzer.hpp"
 #include "path_helper.hpp"
 #include "request_manager.hpp"
@@ -194,11 +195,7 @@ void convert() {
     std::vector<std::string> names = {"Metal/6-Metallica_One.mid"};
     // std::vector<std::string> names = MIDIS;
     for (i = 0; i < names.size(); i++) {
-        midifile.read("/home/nishi/Projects/tcc-testes/data/midi/" + names[i]);
-        
-        if (!midifile.status()) {
-            std::cout << "FALHA, ";
-        }
+        Midi::read_midi(&midifile, "data/midi/" + names[i]);
         std::cout << "tracks: " << midifile.getTrackCount() << ", song: " << names[i] << '\n';
         
         output = names[i];
