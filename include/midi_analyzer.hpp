@@ -62,12 +62,12 @@ struct TrackState {
 
 class MidiAnalyzer {
     private:
-        std::string containing_dir;
+        static inline std::string containing_dir = "data/midi/";
         void assert_containing_dir_path();
         MidiFeatures analyze(std::string midi_name);
         void display_note_ocurrence(TrackInfo track);
     public:
-        void set_containing_dir(std::string path) { containing_dir = path; }
+        static void set_containing_dir(std::string path) { containing_dir = path; }
         EventType get_event_type(smf::MidiEvent ev);
         void analyze_list(std::vector<std::string> midi_list, std::vector<std::string> spotify_ids);
 };

@@ -12,6 +12,7 @@
 #include "engine.hpp"
 #include "logger.hpp"
 #include "midi_analyzer.hpp"
+#include "path_helper.hpp"
 #include "request_manager.hpp"
 
 // static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
@@ -214,9 +215,9 @@ void convert() {
 }
 
 void analyzer() {
+    // MidiAnalyzer::set_containing_dir("data/midi/");
     MidiAnalyzer ma;
-    
-    ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
+    // ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
     ma.analyze_list(MIDIS, MIDIS_SPOTIFY_IDS);
     // ma.analyze_list({"Metal/6-Metallica_One.mid"});
     // ma.analyze_list({"teste_nnnc.mid", "teste_cnnn.mid"});
@@ -231,6 +232,9 @@ void requests() {
 
 int main(int argc, char* argv[]) {
     using std::string;
+    
+    PathHelper::set_run_path(argv[0]); 
+
     string opt{};
     std::vector<string> argv_str(argc - 1);
     get_options(argc, argv);

@@ -5,6 +5,7 @@
 
 class DeviceManager {
     private:
+        inline static std::string userconfig_dir = "data/userconfig.txt";
         static unsigned int flags;
         int device_id;
         std::string device_name;

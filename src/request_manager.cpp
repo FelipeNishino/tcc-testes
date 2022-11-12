@@ -99,13 +99,13 @@ RequestManager::~RequestManager() {
 	cURLpp::terminate();
 }
 
-void RequestManager::request_track_feature_from_list(std::string filename) {
+void RequestManager::request_track_feature_from_list() {
 		using namespace curlpp::Options;
 		using std::string;
 
 		std::vector<string> song_list{};
 		string buf;
-		std::fstream file(filename, std::ios::in);
+		std::fstream file(SONGLIST_PATH, std::ios::in);
 		curlpp::Easy request;
 		nlohmann::json f_json;
 		std::vector<nlohmann::json> result_jsons;

@@ -4,8 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include "stk/RtAudio.h"
-
-#define USERCONFIG_DIR "data/userconfig.txt"
+#include "device_manager.hpp"
 
 unsigned int DeviceManager::flags = 0;
 
@@ -47,7 +46,7 @@ int DeviceManager::set_default_device() {
     std::string input;
     std::cin >> input;
     choosen_device = std::stoi(input);
-    std::fstream file(USERCONFIG_DIR, std::ios::out);
+    std::fstream file(DeviceManager::userconfig_dir, std::ios::out);
     if (file.fail()) {
         std::cout << "deu ruim" << std::endl;
         file.close();
@@ -62,7 +61,7 @@ int DeviceManager::set_default_device() {
 
 int DeviceManager::get_device_id() {
     if (device_id < 0) {
-        std::fstream file(USERCONFIG_DIR, std::ios::in);
+        std::fstream file(DeviceManager::userconfig_dir, std::ios::in);
         if (file.fail()) {
             file.close();
             set_default_device();
