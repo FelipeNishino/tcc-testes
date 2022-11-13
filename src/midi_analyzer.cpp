@@ -2,7 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include "libjson/json.hpp"
-#include "libmidifile/MidiEventList.h"
+#include "libmidifile/MidiEvent.hpp"
+#include "libmidifile/MidiEventList.hpp"
 #include "engine.hpp"
 #include "midi.hpp"
 #include "midi_analyzer.hpp"
@@ -57,6 +58,7 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     MidiFeatures feat;
     TrackState st;
     smf::MidiFile midifile;
+    smf::MidiEvent* linked_ev;
     std::_List_iterator<int> find_it;
     std::list<int> chord_list;
     int j = 1;
@@ -68,9 +70,10 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     if (midifile.isAbsoluteTicks()) {
         midifile.deltaTicks();
     }
-    
-    std::cout << "\nSong: " << midi_name << '\n';
-    std::cout << "Tracks: " << midifile.getTrackCount() << '\n';
+    std::cout << "linked " << midifile.linkNotePairs() << " notes\n";
+    midifile.doTimeAnalysis();
+    // std::cout << "\nSong: " << midi_name << '\n';
+    // std::cout << "Tracks: " << midifile.getTrackCount() << '\n';
     for (int i = 0; i < midifile.getTrackCount(); i++) {
         tracks.push_back(TrackInfo{});
         // std::cout << "Event count: " << midifile[i].getEventCount() << '\n';
@@ -104,6 +107,18 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
                     st.prev_on.set = true;
                     st.prev_note_type = on;
                     tracks[i].note_count++;
+                    linked_ev = st.curr_ev.ev.getLinkedEvent();
+                    if (!linked_ev) {
+                        std::cout << "Linked ev naoveio\n";
+                    }
+                    // std::cout.precision(17);
+                    // std::cout << "dur in secs: " << st.curr_ev.ev.getDurationInSeconds() << '\n';
+                    // std::cout << "dur in secs: " << 5.9999998 << '\n';
+                    // midifile.doTimeAnalysis();
+                    // if (linked_ev) {
+                    tracks[i].note_durations[st.curr_ev.ev.getDurationInSeconds()]++;
+                    // }
+                    
                     break;
                 case note_off:
                     // std::cout << "Note off\n";
@@ -166,14 +181,22 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
         }
         // display_note_ocurrence(tracks[i]);
         // std::cout << "Tempos: \n";
-        for (auto pair : tracks[i].bpm_timestamp) {
-            std::cout << "Tempo: " << pair.first << " notestamps: ";
-            for (auto notestamps : pair.second) {
-                std::cout << notestamps << " ";
-            }
-            std::cout << "\n";
-        }
+        // for (auto pair : tracks[i].bpm_timestamp) {
+        //     std::cout << "Tempo: " << pair.first << " notestamps: ";
+        //     for (auto notestamps : pair.second) {
+        //         std::cout << notestamps << " ";
+        //     }
+        //     std::cout << "\n";
+        // }
         // tracks[i].note_matrix = std::array<std::array<int, 13>, 13>{0};
+    }
+    for (int i = 0; i < midifile.getTrackCount(); i++) {
+        for (auto &[duration, freq] : tracks[i].note_durations) {
+            std::cout.precision(17);
+            std::cout << "track " << i << ": " << duration << " - " << freq << '\n';
+            // t += freq;
+            feat.track_info.note_durations[duration] += freq;
+        }
     }
     // Soma matrizes de notas
     for (auto track : tracks) {
@@ -185,9 +208,26 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
         for (auto bpm_freq_pair : track.bpm_timestamp) {
             feat.bpms.insert(bpm_freq_pair.first);
         }
+        // int t{};
+        for (auto &[duration, freq] : track.note_durations) {
+            // std::cout.precision(17);
+            // std::cout << duration << ": " << freq << '\n';
+            // t += freq;
+            feat.track_info.note_durations[duration] += freq;
+        }
+        // std::cout << t << '\n';
+        
         feat.track_info.note_count += track.note_count;
     }
-
+    // int t{};
+    
+    // for (auto &[duration, freq] : feat.track_info.note_durations) {
+            // t += freq;
+            // std::cout.precision(17);
+            // std::cout << duration << ": " << freq << '\n';
+            // feat.track_info.note_durations[duration] += freq;
+        // }
+        // std::cout << "Total: " <<  t << '\n';
     return feat;
 }
 
@@ -216,9 +256,9 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
     };
 
     std::map<std::string, std::array<std::array<int, 13>, 13>> emotion_to_notes;
-    
     std::map<std::string, int> emotion_to_note_count;
     std::map<std::string, std::set<int>> emotion_to_tempos;
+    std::map<std::string, std::map<double, int>> emotion_to_durations;
     json features_json;
 
     f.open("data/features2.json", std::ios::in);
@@ -244,15 +284,16 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
     // return;
 
     for (int i = 0; i < results.size(); i++) {
-        std::cout << midi_list[i] << '\n';
-        std::cout << spotify_ids[i] << '\n';
-        std::cout << "Note count: " << results[i].track_info.note_count << '\n';
+        // std::cout << midi_list[i] << '\n';
+        // std::cout << spotify_ids[i] << '\n';
+        // std::cout << "Note count: " << results[i].track_info.note_count << '\n';
 
-        std::cout << '\n';
+        // std::cout << '\n';
         features_json["audio_features"][i]["midi_features"] = {
             {"note_matrix", results[i].track_info.note_matrix},
             {"note_count", results[i].track_info.note_count},
             {"bpms", results[i].bpms},
+            {"durations", results[i].track_info.note_durations},
         };
         // auto it = std::find(features_json["audio_features"].begin(), features_json["audio_features"].end(), spotify_ids[i]);
         // if (it != features_json["audio_features"].end())
@@ -273,10 +314,13 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         for (int tempos : features_json["audio_features"][i]["midi_features"]["bpms"]) {
             emotion_to_tempos[features_json["audio_features"][i]["emotion"]].insert(tempos);
         }
-        
+
+        for (auto &[duration, freq] : features_json["audio_features"][i]["midi_features"]["durations"].get<std::map<double, int>>()) { 
+            emotion_to_durations[features_json["audio_features"][i]["emotion"]][duration] = freq;
+        }   
 
         emotion_to_note_count[features_json["audio_features"][i]["emotion"]] += results[i].track_info.note_count;
-        std::cout << "\n\n";
+        // std::cout << "\n\n";
     }
 
     

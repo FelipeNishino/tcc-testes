@@ -174,7 +174,6 @@ void get_options(int argc, char* const* argv) {
             flags |= FLAG_HELP;
             break;
         case 'l':
-            std::cout << "Recebeu como arg pro l: " << optarg << '\n';
             Logger::set_output_level(static_cast<Logger::LogLevel>(atoi(optarg)));
             break;
         case 'n':

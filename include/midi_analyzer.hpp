@@ -7,8 +7,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "libmidifile/MidiEvent.h"
-#include "libmidifile/MidiFile.h"
+#include "libmidifile/MidiEvent.hpp"
+#include "libmidifile/MidiFile.hpp"
 
 struct midi_containing_dir_empty : public std::exception {
    	const char * what () const throw () {
@@ -45,6 +45,7 @@ struct NoteEvent {
 struct TrackInfo {
     std::array<std::array<int, 13>, 13> note_matrix{0};
     std::map<int, std::list<int>> bpm_timestamp;
+    std::map<double, int> note_durations;
     int note_count{};
 };
 

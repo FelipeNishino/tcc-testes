@@ -3,7 +3,7 @@
 
 #include <exception>
 #include <string>
-#include "libmidifile/MidiFile.h"
+#include "libmidifile/MidiFile.hpp"
 
 namespace Midi {
     struct unsuccesful_midi_read : public std::exception {

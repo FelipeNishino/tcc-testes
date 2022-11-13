@@ -13,7 +13,7 @@
 #ifndef _MIDIEVENTLIST_H_INCLUDED
 #define _MIDIEVENTLIST_H_INCLUDED
 
-#include "MidiEvent.h"
+#include "MidiEvent.hpp"
 #include <vector>
 
 namespace smf {

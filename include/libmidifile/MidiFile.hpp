@@ -14,7 +14,7 @@
 #ifndef _MIDIFILE_H_INCLUDED
 #define _MIDIFILE_H_INCLUDED
 
-#include "MidiEventList.h"
+#include "MidiEventList.hpp"
 
 #include <vector>
 #include <string>

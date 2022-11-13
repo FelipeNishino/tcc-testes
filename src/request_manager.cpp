@@ -126,7 +126,7 @@ void RequestManager::request_track_feature_from_list() {
 			std::cout << "deu ruim" << std::endl;
         	file.close();
     	}
-
+        
 		// TODO: Verificar se a lista está vazia
 
 		while (true) {
@@ -292,7 +292,7 @@ void RequestManager::perform_request(curlpp::Easy *req) {
 	const auto interval = duration_cast<seconds>(auth_expiration.time_since_epoch());
 	// TODO: N TA FUNFANDO
 	if (interval.count() > 3600) {
-		std::cout << "Intervalo: " << interval.count() << "\n";
+		// std::cout << "Intervalo: " << interval.count() << "\n";
 		// retrieve_auth_token();
 	}
 
