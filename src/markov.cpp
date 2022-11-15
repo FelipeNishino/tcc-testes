@@ -35,7 +35,6 @@ int Markov::proximo_estado(int atual) {
         prox = proximo_estado(atual);
     }
     return prox;
-    
 }
 
 void Markov::display() {

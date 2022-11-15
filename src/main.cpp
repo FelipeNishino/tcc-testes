@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include "libcurlpp/curlpp/Infos.hpp"
-#include "libmidifile/MidiFile.h"
+#include "libmidifile/MidiFile.hpp"
 #include "device_manager.hpp"
 #include "emotion_categorizer.hpp"
 #include "engine.hpp"
@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
     string opt{};
     std::vector<string> argv_str(argc - 1);
     get_options(argc, argv);
-
+    
     if (flags & FLAG_INVALID || !(flags ^ 1 << 2)) {
         usage();
         exit(EXIT_FAILURE);
@@ -259,9 +259,12 @@ int main(int argc, char* argv[]) {
     if (flags & FLAG_NO_PLAY) {
         exit(EXIT_SUCCESS);
     }
-
-    Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
-    engine->play();
     
+    Engine* engine = Engine::GetInstance();
+    
+    // Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
+    
+    engine->play();
+    std::cout << "Tô Aqui!\n";
     exit(EXIT_SUCCESS);
 }

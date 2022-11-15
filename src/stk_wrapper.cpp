@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#include <stk/BeeThree.h>
 #include <vector>
 #include "device_manager.hpp"
 #include "engine.hpp"
@@ -16,18 +17,48 @@ StkWrapper::StkWrapper() {
 	now_playing = std::set<float>();
 
 	configure();
-
+	// voicer = stk::BeeThree();
+	
     stk::Instrmnt *instrument[3];
     try {
 	// Define and load the BeeThree instruments
         for ( int i=0; i<3; i++ ) {
-            instrument[i] = new stk::BeeThree();
-	        voicer.addInstrument(instrument[i]);
+            // instrument[i] = new stk::BlowHole(8400); // Zuadasso
+			// instrument[i] = new stk::VoicForm(); // Zuadasso
+			// instrument[i] = new stk::Saxofony(120); // Zuadasso
+			// instrument[i] = new stk::BandedWG();// Cordinha
+			// instrument[i] = new stk::Flute(12000); // Bosta
+			// instrument[i] = new stk::Shakers(); // Horrivel
+			// instrument[i] = new stk::Mandolin(120); // Bosta
+			// instrument[i] = new stk::StifKarp(); // +---
+			// instrument[i] = new stk::Bowed(); // Zuada
+			// instrument[i] = new stk::Brass(); // Zuado
+			// instrument[i] = new stk::Clarinet(); // Zuado
+			// instrument[i] = new stk::Recorder(); // Zuado
+			// instrument[i] = new stk::BlowBotl();
+			// instrument[i] = new stk::Whistle();
+			// instrument[i] = new stk::Resonate(); // 
+			// instrument[i] = new stk::Simple(); // Ruim, tem um ruido fritadasso
+			// instrument[i] = new stk::FMVoices(); // Horrível
+			// instrument[i] = new stk::Plucked();// Horrível
+			// instrument[i] = new stk::Rhodey(); //+-
+			// instrument[i] = new stk::Wurley(); // +- Estranho
+			instrument[i] = new stk::BeeThree();
+			// instrument[i]->controlChange(11, 1000);
+			// instrument[i] = new stk::Moog(); // Bosta
+			// instrument[i] = new stk::Sitar(); // Zuado
+			// instrument[i] = new stk::TubeBell(); // Bosta
+			// instrument[i] = new stk::Drummer(); // Nadave
+			// instrument[i] = new stk::PercFlut(); // +-
+			// instrument[i] = new stk::HevyMetl(); // +--
+			voicer.addInstrument(instrument[i]);
         }
     }
 	catch ( stk::StkError & ) {
         std::cout << "Erro ao instanciar instrumentos" << std::endl;   
 	}
+	// voicer.setModulationSpeed(10)
+	// voicer
 }
 
 bool StkWrapper::has_message() { return !no_message; }
@@ -43,7 +74,7 @@ void StkWrapper::set_counter(int n) { counter = n; }
 int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 		 double streamTime, RtAudioStreamStatus status, void *dataPointer )
 {
-	Engine* engine = Engine::GetInstance(std::vector<int>());
+	Engine* engine = Engine::GetInstance();
 	StkWrapper* wrapper = &engine->wrapper;
     stk::StkFloat *samples = (stk::StkFloat *) outputBuffer;
 	int mt, counter, nTicks = (int) nBufferFrames;
@@ -74,8 +105,7 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 	return 0;
 }
 
-void StkWrapper::process_message()
-{
+void StkWrapper::process_message() {
 	stk::StkFloat value1 = message.floatValues[0];
 	stk::StkFloat value2 = message.floatValues[1];
 
@@ -86,12 +116,11 @@ void StkWrapper::process_message()
 
 		case __SK_NoteOn_:
 			for (auto &note : now_playing)
-				voicer.noteOff(note, 64.0);
+				voicer.noteOff(note, 64);
 			now_playing.clear();
 			if ( value2 == 0.0 ) // velocity is zero ... really a NoteOff
-				voicer.noteOff(value1, 64.0);
+				voicer.noteOff(value1, 64);
 			else { // a NoteOn
-
 				now_playing.insert(value1);
 				// now_playing.insert(value1 + 2);
 				// now_playing.insert(value1 + 4);
@@ -102,7 +131,7 @@ void StkWrapper::process_message()
 			break;
 
 		case __SK_NoteOff_:
-			voicer.noteOff(value1, value2);
+			voicer.noteOff(value1, 64);
 			break;
 
 		case __SK_ControlChange_:
@@ -116,11 +145,21 @@ void StkWrapper::process_message()
 			voicer.setFrequency(value1);
 			break;
 
-		case __SK_PitchBend_:
-			voicer.pitchBend(value1);
+		// case __SK_PitchBend_:
+			// voicer.pitchBend(value1);
 	} // end of switch
 
-	no_message = true;
+	// if (message.type == __SK_NoteOn_) {
+	// 	message.type = __SK_NoteOff_;
+	// 	Engine* engine = Engine::GetInstance();
+	// 	std::cout.precision(17);
+	// 	std::cout << "duracao bpm: " << 60.0/double(engine->bpm.load()) << '\n' << "tempo: " << message.time << '\n'; 
+    // 	message.time = 60.0/double(engine->bpm.load()) - message.time;    
+	// }
+	// else {
+		no_message = true;
+	// }
+
 	return;
 }
 
@@ -135,9 +174,11 @@ void StkWrapper::message_from_note(int note) {
 	message.floatValues[0] = Midi::NOTE_TO_MIDI_KEY[note];
 	// std::cout << "Nota na mensagem: " << message.floatValues[0] << std::endl;
 	message.floatValues[1] = 64;
-	message.channel = 1;
-	Engine* engine = Engine::GetInstance(std::vector<int>());
-    message.time = ( engine->count_notas == 1 ? 0 : 60.0/double(engine->bpm.load()) );
+	message.channel = 2;
+	Engine* engine = Engine::GetInstance();
+    // message.time = ( engine->count_notas == 1 ? 0 : 60.0/double(engine->bpm.load()) );
+	message.time = (1);
+    // message.time = ( engine->count_notas == 1 ? 0 : engine->get_duration());
     
 	// std::cout << engine->count_notas << std::endl;
 	// message.time = 0.002;

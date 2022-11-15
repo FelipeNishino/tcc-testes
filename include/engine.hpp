@@ -4,6 +4,7 @@
 #include <atomic>
 #include <map>
 #include <mutex>
+#include <stk/Generator.h>
 #include "markov.hpp"
 #include "stk_wrapper.hpp"
 
@@ -38,6 +39,8 @@ enum Emotion {
 
 struct States {
     int note_state{};
+    int tempo_state{};
+    double duration_state{};
 };
 
 class Engine {
@@ -51,7 +54,9 @@ class Engine {
     public:        
         std::map<std::string, Markov*> emotion_to_cadeia_notas;
         std::map<std::string, std::vector<int>> emotion_to_bpms;
+        std::map<std::string, std::map<double, double>> emotion_to_durations;
         States states;
+        std::default_random_engine generator;
         std::atomic<Emotion> emotion;
         std::atomic<int> bpm;
         int default_octave;
@@ -60,14 +65,15 @@ class Engine {
         int count_notas;
         void play();
         void get_emotion();
+        
         void listen_to_emotion_input();
         // Singletons should not be cloneable
         Engine(Engine &other) = delete;
         // Singletons should not be assignable.
         void operator=(const Engine &) = delete;
         void get_bpm();
-
-        static Engine *GetInstance(std::vector<int> m);
+        double get_duration();
+        static Engine *GetInstance();
 
         // std::string value() const{
         //     return value_;

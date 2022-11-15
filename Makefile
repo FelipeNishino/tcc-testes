@@ -6,7 +6,7 @@ SRC_DIRS := ./src
 INC_DIRS := ./include
 STATIC_LIBS := libs/libjsoncpp.a libs/libcurlpp.a libs/libmidifile.a
 CFLAGS += -Wall -g
-LDFLAGS += -Llib -lstk -lcurl
+LDFLAGS += -Llibs -lstk -lcurl
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.

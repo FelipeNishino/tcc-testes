@@ -36,16 +36,32 @@ enum NoteEventType {
 };
 
 struct NoteEvent {
-    smf::MidiEvent ev;
+    smf::MidiEvent* ev;
     int key;
     ComponentType component;
     bool set = false;
+};
+
+struct SongEventCollections {
+    std::vector<smf::MidiEvent*> note_on_evs;
+    std::vector<smf::MidiEvent*> note_off_evs;
+    std::vector<smf::MidiEvent*> time_sig_evs;
+    std::vector<smf::MidiEvent*> key_sig_evs;
+    std::vector<smf::MidiEvent*> tempo_evs;
+    std::vector<smf::MidiEvent*> other_evs;
+};
+
+struct Quarter {
+    std::vector<std::vector<int>> transitions;
+    std::vector<int> label;
 };
 
 struct TrackInfo {
     std::array<std::array<int, 13>, 13> note_matrix{0};
     std::map<int, std::list<int>> bpm_timestamp;
     std::map<double, int> note_durations;
+    Quarter quarters;
+    std::map<int, int> octaves;
     int note_count{};
 };
 

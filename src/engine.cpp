@@ -32,6 +32,8 @@ Engine::Engine() {
 
     std::vector<std::vector<double>> matriz;
     std::vector<int> vetor{};
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator = std::default_random_engine(seed);
     emotion.store(none);
     bpm = 0;
     
@@ -43,6 +45,9 @@ Engine::Engine() {
         
         // emotion_to_cadeia_notas.emplace("sad", Markov(matriz));
         emotion_to_bpms[emo] = vetor;
+        std::cout << "tô aqui!\n";
+
+        emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
     }
     
     // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
@@ -52,7 +57,7 @@ Engine::Engine() {
     count_notas = 0;
 }
 
-Engine *Engine::GetInstance(std::vector<int> m) {
+Engine *Engine::GetInstance() {
     std::lock_guard<std::mutex> lock(mutex_);
     if (pinstance_ == nullptr) {
         pinstance_ = new Engine();
@@ -65,6 +70,25 @@ int Engine::get_note() {
     states.note_state = emotion_to_cadeia_notas[EMO_TO_STR[emotion]]->proximo_estado(note);
     count_notas++;
     return note;
+}
+
+double Engine::get_duration() {
+    double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
+    double sum{};
+    int prox{};
+    for (auto prob : emotion_to_durations[EMO_TO_STR[emotion]]) {
+        sum += prob.second;
+        prox = prob.first;
+
+        // if (val < sum) break;  
+    }
+    
+    // if (prox == 12) {
+        // prox = proximo_estado(atual);
+    // }
+    std::cout << "Soma: " << sum << '\n';
+    std::cout << "Duracao: " << prox << '\n';
+    return prox;    
 }
 
 void Engine::get_bpm() {
@@ -101,12 +125,16 @@ void Engine::listen_to_emotion_input() {
 }
 
 void Engine::play() {
+        std::cout << "tô aqui!\n";
+
     if (emotion.load() == none) {
         get_emotion();
         std::cout << "\x1B[2J\x1B[H";
         get_bpm();
         std::cout << "BPM: " << bpm.load() << '\n';
     }
+    std::cout << "tô aqui!\n";
+
     
     std::thread first(&Engine::listen_to_emotion_input, this);
 
@@ -117,7 +145,7 @@ void Engine::play() {
     //     int past = get_note();
     //     hist[past][states.note_state]++;
     // }
-
+    std::cout << "tô aqui!\n";
     try {
 	    wrapper.toggle_stream(true);
 	}
