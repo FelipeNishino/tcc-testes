@@ -80,7 +80,7 @@ Engine::Engine() {
     // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
     // emotion_to_cadeia_notas.emplace("relaxed", Markov(emotion_json["emotions"]["relaxed"]["note_matrix"]));
 
-    default_octave = 5;
+    default_octave = 4;
     count_notas = 0;
 }
 
@@ -96,7 +96,7 @@ int Engine::get_note() {
     int note = states.note_state;
     states.note_state = emotion_to_cadeia_notas[EMO_TO_STR[emotion]]->proximo_estado(note);
     count_notas++;
-    return note;
+    return note + 12 * default_octave;
 }
 
 double Engine::get_duration() {

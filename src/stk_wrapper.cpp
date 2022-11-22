@@ -133,7 +133,8 @@ void StkWrapper::list_devices() {
 void StkWrapper::message_from_note(int note) {
 	message.type = __SK_NoteOn_;
     // std::cout << "Nota gerada: " << note << std::endl;
-	message.floatValues[0] = Midi::NOTE_TO_MIDI_KEY[note];
+	// message.floatValues[0] = Midi::NOTE_TO_MIDI_KEY[note];
+    message.floatValues[0] = note;
 	// std::cout << "Nota na mensagem: " << message.floatValues[0] << std::endl;
 	message.floatValues[1] = 64;
 	message.channel = 2;
