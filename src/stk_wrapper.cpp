@@ -11,61 +11,36 @@
 #include "utils.hpp"
 
 StkWrapper::StkWrapper() {
+    stk::Stk::showWarnings(true);
     counter = 0;
     no_message = true;
     done = false;
 	now_playing = std::set<float>();
-
 	configure();
-	// voicer = stk::BeeThree();
 	
+	// instrument = new stk::BeeThree();
+    // instrument = new stk::Guitar();
+    // instrument = new stk::Mandolin(120); // Interessante
+
     stk::Instrmnt *instrument[3];
     try {
 	// Define and load the BeeThree instruments
         for ( int i=0; i<3; i++ ) {
-            // instrument[i] = new stk::BlowHole(8400); // Zuadasso
-			// instrument[i] = new stk::VoicForm(); // Zuadasso
-			// instrument[i] = new stk::Saxofony(120); // Zuadasso
-			// instrument[i] = new stk::BandedWG();// Cordinha
-			// instrument[i] = new stk::Flute(12000); // Bosta
-			// instrument[i] = new stk::Shakers(); // Horrivel
-			// instrument[i] = new stk::Mandolin(120); // Bosta
-			// instrument[i] = new stk::StifKarp(); // +---
-			// instrument[i] = new stk::Bowed(); // Zuada
-			// instrument[i] = new stk::Brass(); // Zuado
-			// instrument[i] = new stk::Clarinet(); // Zuado
-			// instrument[i] = new stk::Recorder(); // Zuado
-			// instrument[i] = new stk::BlowBotl();
-			// instrument[i] = new stk::Whistle();
-			// instrument[i] = new stk::Resonate(); // 
-			// instrument[i] = new stk::Simple(); // Ruim, tem um ruido fritadasso
-			// instrument[i] = new stk::FMVoices(); // Horrível
-			// instrument[i] = new stk::Plucked();// Horrível
-			// instrument[i] = new stk::Rhodey(); //+-
-			// instrument[i] = new stk::Wurley(); // +- Estranho
-			instrument[i] = new stk::BeeThree();
-			// instrument[i]->controlChange(11, 1000);
-			// instrument[i] = new stk::Moog(); // Bosta
-			// instrument[i] = new stk::Sitar(); // Zuado
-			// instrument[i] = new stk::TubeBell(); // Bosta
-			// instrument[i] = new stk::Drummer(); // Nadave
-			// instrument[i] = new stk::PercFlut(); // +-
-			// instrument[i] = new stk::HevyMetl(); // +--
-			voicer.addInstrument(instrument[i]);
+			instrument[i] = new stk::Mandolin(120);
+			// instrument[i] = new stk::BeeThree();
+			voicer->addInstrument(instrument[i]);
         }
     }
 	catch ( stk::StkError & ) {
         std::cout << "Erro ao instanciar instrumentos" << std::endl;   
 	}
-	// voicer.setModulationSpeed(10)
-	// voicer
 }
 
 bool StkWrapper::has_message() { return !no_message; }
 bool StkWrapper::is_done() { return done; }
 void StkWrapper::set_done() { done = true; }
 void StkWrapper::toggle_stream(bool on) { if (on) dac.startStream(); else dac.stopStream(); }
-stk::StkFloat StkWrapper::get_sample() { return voicer.tick(); }
+stk::StkFloat StkWrapper::get_sample() { return voicer->tick(); }
 long StkWrapper::get_message_type() { return message.type; }
 long StkWrapper::get_required_counter() { return (long) (message.time * stk::Stk::sampleRate()); }
 int StkWrapper::get_counter() { return counter; }
@@ -116,50 +91,37 @@ void StkWrapper::process_message() {
 
 		case __SK_NoteOn_:
 			for (auto &note : now_playing)
-				voicer.noteOff(note, 64);
+				voicer->noteOff(note, 64.0);
 			now_playing.clear();
 			if ( value2 == 0.0 ) // velocity is zero ... really a NoteOff
-				voicer.noteOff(value1, 64);
-			else { // a NoteOn
+				voicer->noteOff(value1, 64.0);
+			else {
 				now_playing.insert(value1);
-				// now_playing.insert(value1 + 2);
-				// now_playing.insert(value1 + 4);
-				voicer.noteOn(value1, value2);
-				// voicer.noteOn(value1 + 2, value2);
-				// voicer.noteOn(value1 + 4, value2);
+                voicer->noteOn(value1, value2);
+                // instrument->noteOn(220.0 * pow( 2.0, (value1 - 57.0) / 12.0 ), value2 * stk::ONE_OVER_128);
 			}
 			break;
 
 		case __SK_NoteOff_:
-			voicer.noteOff(value1, 64);
+			voicer->noteOff(value1, 64.0);
 			break;
 
 		case __SK_ControlChange_:
-			voicer.controlChange((int) value1, value2);
+			voicer->controlChange((int) value1, value2);
 			break;
 
 		case __SK_AfterTouch_:
-			voicer.controlChange(128, value1);
+			voicer->controlChange(128, value1);
 
 		case __SK_PitchChange_:
-			voicer.setFrequency(value1);
+			voicer->setFrequency(value1);
 			break;
 
-		// case __SK_PitchBend_:
-			// voicer.pitchBend(value1);
+		case __SK_PitchBend_:
+			voicer->pitchBend(value1);
 	} // end of switch
-
-	// if (message.type == __SK_NoteOn_) {
-	// 	message.type = __SK_NoteOff_;
-	// 	Engine* engine = Engine::GetInstance();
-	// 	std::cout.precision(17);
-	// 	std::cout << "duracao bpm: " << 60.0/double(engine->bpm.load()) << '\n' << "tempo: " << message.time << '\n'; 
-    // 	message.time = 60.0/double(engine->bpm.load()) - message.time;    
-	// }
-	// else {
-		no_message = true;
-	// }
-
+	
+	no_message = true;
 	return;
 }
 
