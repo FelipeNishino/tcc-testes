@@ -6,6 +6,7 @@
 #include "libjson/json.hpp"
 #include "engine.hpp"
 #include "utils.hpp"
+#include "logger.hpp"
 
 /**
  * Static methods should be defined outside the class.
@@ -132,13 +133,20 @@ void Engine::get_emotion() {
     std::string input;
     int new_emotion = -1;
     
-    while (new_emotion < 0 || new_emotion > 3) {
+    while ((new_emotion < 0 || new_emotion > 3) && new_emotion != 9) {
         std::cin >> input;
         new_emotion = std::stoi(input);
         std::cout << "Invalid number, try again: ";
     }
     
-    emotion.store(static_cast<Emotion>(new_emotion));
+    if (new_emotion == 9) {
+        std::cout << "Exiting...\n";
+        wrapper.set_done();
+        new_emotion = 0;
+    }
+    else {
+        emotion.store(static_cast<Emotion>(new_emotion));
+    }
 }
 
 void Engine::listen_to_emotion_input() {
@@ -181,11 +189,15 @@ void Engine::play() {
 	while ( !wrapper.is_done() )
         stk::Stk::sleep(1000);
 	
+
 	// Shut down the callback and output stream.
+    Logger::log(Logger::LOG_INFO, "Fechando a stream...");
 	try {
 	    wrapper.toggle_stream(false);
 	}
 	catch ( RtAudioError &error ) {
+            Logger::log(Logger::LOG_INFO, "N conseguiu fechar...");
+
 	    error.printMessage();
         return;
 	}

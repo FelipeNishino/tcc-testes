@@ -73,8 +73,6 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 
 		// Process control messages.
 		if ( wrapper->has_message() ) wrapper->process_message();
-		// if (engine->count_notas > 3)
-		// 	engine->wrapper.set_done();
 	}
 
 	return 0;

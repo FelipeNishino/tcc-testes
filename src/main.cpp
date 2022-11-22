@@ -15,7 +15,8 @@
 #include "midi_analyzer.hpp"
 #include "path_helper.hpp"
 #include "request_manager.hpp"
-
+// Ordem das musicas no yt
+// 9 4 2 0 1 3 8 6 5 7 
 // static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
 static int flags{};
 
@@ -265,6 +266,5 @@ int main(int argc, char* argv[]) {
     // Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     
     engine->play();
-    std::cout << "Tô Aqui!\n";
-    exit(EXIT_SUCCESS);
+    // exit(EXIT_SUCCESS);
 }
