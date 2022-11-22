@@ -135,16 +135,23 @@ void StkWrapper::message_from_note(int note) {
     message.floatValues[0] = note;
 	// std::cout << "Nota na mensagem: " << message.floatValues[0] << std::endl;
 	message.floatValues[1] = 64;
-	message.channel = 2;
+	message.channel = 1;
 	Engine* engine = Engine::GetInstance();
-    // message.time = ( engine->count_notas == 1 ? 0 : 60.0/double(engine->bpm.load()) );
-	message.time = (1);
+    message.time = ( engine->count_notas == 1 ? 0 : 60.0/double(engine->bpm.load()) );
+	// message.time = (1);
     // message.time = ( engine->count_notas == 1 ? 0 : engine->get_duration());
     
 	// std::cout << engine->count_notas << std::endl;
 	// message.time = 0.002;
 	// message.time = 0.5;
 	no_message = false;
+    	// if (message.type == __SK_NoteOn_) {
+	// 	message.type = __SK_NoteOff_;
+	// 	Engine* engine = Engine::GetInstance();
+	// 	std::cout.precision(17);
+	// 	std::cout << "duracao bpm: " << 60.0/double(engine->bpm.load()) << '\n' << "tempo: " << message.time << '\n'; 
+    // 	message.time = 60.0/double(engine->bpm.load()) - message.time;    
+	// }
 }
 
 void StkWrapper::raise_error() {
@@ -158,7 +165,9 @@ void StkWrapper::configure() {
 	
 	parameters.deviceId = dm.get_device_id();
 	RtAudio::DeviceInfo device = dac.getDeviceInfo(dm.get_device_id());
-	parameters.nChannels = 1;
+	// parameters.nChannels = device.outputChannels;
+    
+    parameters.nChannels = 1;
 	stk::Stk::setSampleRate( device.preferredSampleRate );
 	RtAudioFormat format = ( sizeof(stk::StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
 	unsigned int bufferFrames = stk::RT_BUFFER_SIZE;
