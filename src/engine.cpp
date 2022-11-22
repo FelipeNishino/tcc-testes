@@ -32,11 +32,39 @@ Engine::Engine() {
 
     std::vector<std::vector<double>> matriz;
     std::vector<int> vetor{};
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    generator = std::default_random_engine(seed);
+    std::random_device rd;
+    // seed value is designed specifically to make initialization
+    // parameters of std::mt19937 (instance of std::mersenne_twister_engine<>)
+    // different across executions of application
+    // const auto p0 = 
+    // std::mt19937::result_type seed = rd() ^ (
+    //         (std::mt19937::result_type)
+    //         std::chrono::duration_cast<std::chrono::seconds>(
+    //             std::chrono::system_clock::now().time_since_epoch()
+    //             ).count() +
+    //         (std::mt19937::result_type)
+    //         std::chrono::duration_cast<std::chrono::microseconds>(
+    //             std::chrono::high_resolution_clock::now().time_since_epoch()
+    //             ).count() );
+
+    std::mt19937::result_type seed = rd() ^ (
+            (std::mt19937::result_type)
+            std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+                ).count() +
+            (std::mt19937::result_type)
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch()
+                ).count() );
+
+    // std::mt19937 gen(seed);
+
+    // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::cout << "Tô aqui\n";
+    generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
     emotion.store(none);
     bpm = 0;
-    
+    std::cout << "Tô aqui\n";
     for (auto emo : EMO_TO_STR) {
         matriz = emotion_json["emotions"][emo]["prob_matrix"];
         emotion_to_cadeia_notas.insert(std::make_pair(emo, new Markov(matriz)));
@@ -45,7 +73,6 @@ Engine::Engine() {
         
         // emotion_to_cadeia_notas.emplace("sad", Markov(matriz));
         emotion_to_bpms[emo] = vetor;
-        std::cout << "tô aqui!\n";
 
         emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
     }
@@ -125,17 +152,13 @@ void Engine::listen_to_emotion_input() {
 }
 
 void Engine::play() {
-        std::cout << "tô aqui!\n";
-
     if (emotion.load() == none) {
         get_emotion();
         std::cout << "\x1B[2J\x1B[H";
         get_bpm();
         std::cout << "BPM: " << bpm.load() << '\n';
     }
-    std::cout << "tô aqui!\n";
 
-    
     std::thread first(&Engine::listen_to_emotion_input, this);
 
     // int TOTAL = 20825;
@@ -145,7 +168,6 @@ void Engine::play() {
     //     int past = get_note();
     //     hist[past][states.note_state]++;
     // }
-    std::cout << "tô aqui!\n";
     try {
 	    wrapper.toggle_stream(true);
 	}

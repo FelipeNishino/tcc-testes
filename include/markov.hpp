@@ -9,7 +9,7 @@ class Markov {
         Markov(std::vector<std::vector<double>> m);
         std::vector<std::vector<double>> matriz_transicao;
         // std::random_device rd;
-        std::default_random_engine generator;
+        std::mt19937 generator;
         // ~Markov();
         int proximo_estado(int atual);
         void display();

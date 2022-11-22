@@ -17,9 +17,32 @@
 // }
 
 Markov::Markov(std::vector<std::vector<double>> m) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::random_device rd;
+    // seed value is designed specifically to make initialization
+    // parameters of std::mt19937 (instance of std::mersenne_twister_engine<>)
+    // different across executions of application
+    std::mt19937::result_type seed = rd() ^ (
+            (std::mt19937::result_type)
+            std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+                ).count() +
+            (std::mt19937::result_type)
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch()
+                ).count() );
+
+    // std::mt19937 gen(seed);
+    std::uniform_int_distribution<unsigned> distrib(0, m.size());
+    // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    // generator = std::mt19937(seed);
+
+    // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     matriz_transicao = m;
-    std::default_random_engine generator(seed);
+    // std::mt19937 generator(seed);
+    auto p0 = std::chrono::time_point<std::chrono::high_resolution_clock>{};
+    std::time_t epoch_time = std::chrono::system_clock::to_time_t(p0);
+    generator = std::mt19937(seed);
+    std::cout << "Seed: " << seed << "\n";
 }
 
 int Markov::proximo_estado(int atual) {

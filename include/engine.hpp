@@ -56,7 +56,7 @@ class Engine {
         std::map<std::string, std::vector<int>> emotion_to_bpms;
         std::map<std::string, std::map<double, double>> emotion_to_durations;
         States states;
-        std::default_random_engine generator;
+        std::mt19937 generator;
         std::atomic<Emotion> emotion;
         std::atomic<int> bpm;
         int default_octave;
