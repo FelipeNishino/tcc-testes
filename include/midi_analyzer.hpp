@@ -9,12 +9,9 @@
 #include <vector>
 #include "libmidifile/MidiEvent.hpp"
 #include "libmidifile/MidiFile.hpp"
-
-struct midi_containing_dir_empty : public std::exception {
-   	const char * what () const throw () {
-		return "Containing directory for midi files isn't set";
-   	}
-};
+#include "database_manager.hpp"
+// #include <filesystem>
+// #include "midi.hpp"
 
 enum EventType {
     note_on,
@@ -79,14 +76,11 @@ struct TrackState {
 
 class MidiAnalyzer {
     private:
-        static inline std::string containing_dir = "data/midi/";
-        void assert_containing_dir_path();
         MidiFeatures analyze(std::string midi_name);
         void display_note_ocurrence(TrackInfo track);
     public:
-        static void set_containing_dir(std::string path) { containing_dir = path; }
         EventType get_event_type(smf::MidiEvent ev);
-        void analyze_list(std::vector<std::string> midi_list, std::vector<std::string> spotify_ids);
+        void analyze_list(std::vector<MidiFSEntry> midi_list = {});
 };
 
 #endif //TCC_MIDI_ANALYZER_H

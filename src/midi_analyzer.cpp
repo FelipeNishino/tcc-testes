@@ -8,6 +8,7 @@
 #include "libmidifile/MidiEvent.hpp"
 #include "libmidifile/MidiEventList.hpp"
 #include "engine.hpp"
+#include "logger.hpp"
 #include "midi.hpp"
 #include "midi_analyzer.hpp"
 #include "utils.hpp"
@@ -39,10 +40,6 @@ void MidiAnalyzer::display_note_ocurrence(TrackInfo track) {
         std::cout << "\n";
 }
 
-void MidiAnalyzer::assert_containing_dir_path() {
-    if (containing_dir.empty()) throw midi_containing_dir_empty(); 
-}
-
 EventType MidiAnalyzer::get_event_type(smf::MidiEvent ev) {
     if (ev.isNoteOn())
         return EventType::note_on;
@@ -68,7 +65,7 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     std::set<int> unique_quarters;
     std::vector<TrackInfo> tracks;
     std::vector<SongEventCollections> ev_coll;
-    Midi::read_midi(&midifile, containing_dir + midi_name);
+    Midi::read_midi(&midifile, midi_name);
     // midifile.joinTracks();
 
     if (midifile.isAbsoluteTicks()) {
@@ -285,22 +282,20 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     return feat;
 }
 
-void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<std::string> spotify_ids) {
+void MidiAnalyzer::analyze_list(std::vector<MidiFSEntry> midi_list) {
     using nlohmann::json;
-    assert_containing_dir_path();
     std::vector<MidiFeatures> results;
     std::fstream f;
 
-    for (auto midi_name : midi_list) {
-        results.push_back(analyze(midi_name));
+    if (midi_list.empty()) {
+        DatabaseManager* dm = DatabaseManager::GetInstance();
+        midi_list = dm->database;
+    }
+
+    for (auto midi_file_entry : midi_list) {
+        results.push_back(analyze(midi_file_entry.path.string()));
     }
     json emotion_json;
-    // emotion_json["emotions"] = {
-    //     {"happy", {{"songs", {}}}},
-    //     {"relaxed", {{"songs", {}}}},
-    //     {"angry", {{"songs", {}}}},
-    //     {"sad", {{"songs", {}}}},
-    // };
     
     emotion_json["emotions"] = {
         {"happy", {}},

@@ -128,7 +128,7 @@ void RequestManager::request_track_feature_from_list() {
     	}
         
 		// TODO: Verificar se a lista está vazia
-
+        // TODO: Usar a database em vez da songlist
 		while (true) {
 			if (song_list.size() < SPOTIFY_MAX_TRACK_REQ && !file.eof()) {
 				getline(file, buf);
