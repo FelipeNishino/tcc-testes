@@ -11,6 +11,7 @@
 #include "midi.hpp"
 #include "midi_analyzer.hpp"
 #include "utils.hpp"
+#include "logger.hpp"
 /*
 NOTE ON/OFF
 DELTA? EVENTCODE NOTA VELOCITY 
@@ -78,16 +79,13 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
         // midifile.absoluteTicks();
     // }
 
-    // std::cout << "linked " << midifile.linkNotePairs() << " notes\n";
     std::cout << "linked " << midifile.linkEventPairs() << " events\n";
 
     midifile.doTimeAnalysis();
-    // std::cout << "\nSong: " << midi_name << '\n';
-    // std::cout << "Tracks: " << midifile.getTrackCount() << '\n';
+
     for (int i = 0; i < midifile.getTrackCount(); i++) {
         tracks.push_back(TrackInfo{});
         ev_coll.push_back(SongEventCollections{});
-        // std::cout << "Event count: " << midifile[i].getEventCount() << '\n';
         j = 0;
         st.prev_on.set = false;
         st.prev_off.set = false;
@@ -295,13 +293,7 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         results.push_back(analyze(midi_name));
     }
     json emotion_json;
-    // emotion_json["emotions"] = {
-    //     {"happy", {{"songs", {}}}},
-    //     {"relaxed", {{"songs", {}}}},
-    //     {"angry", {{"songs", {}}}},
-    //     {"sad", {{"songs", {}}}},
-    // };
-    
+
     emotion_json["emotions"] = {
         {"happy", {}},
         {"relaxed", {}},
@@ -311,6 +303,8 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
 
     std::map<std::string, std::array<std::array<int, 13>, 13>> emotion_to_notes;
     std::map<std::string, int> emotion_to_note_count;
+    std::map<std::string, std::vector<int>> emotion_to_modes;
+    std::map<std::string, std::map<int, int>> emotion_to_keys;
     std::map<std::string, std::set<int>> emotion_to_tempos;
     std::map<std::string, std::map<double, int>> emotion_to_durations;
     std::map<std::string, std::map<int, int>> emotion_to_quarters;
@@ -327,44 +321,23 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
     emotion_json["emotions"]["relaxed"]["songs"] = json::array();
     emotion_json["emotions"]["angry"]["songs"] = json::array();
     emotion_json["emotions"]["sad"]["songs"] = json::array();
-    // emotion_json["emotions"]["sad"]["tempos"] = json::array();
-
-    // std::cout << "TO AQUI\n";
-    //     f.open("data/emotion_midi.json", std::ios::out);
-    //     if (f.fail())
-    //         std::cout << "deu ruim" << std::endl;
-    //     else
-    //         f << emotion_json.dump(4);
-    //     f.close();
-    // return;
 
     for (int i = 0; i < results.size(); i++) {
-        // std::cout << midi_list[i] << '\n';
-        // std::cout << spotify_ids[i] << '\n';
-        // std::cout << "Note count: " << results[i].track_info.note_count << '\n';
-
-        // std::cout << '\n';
         features_json["audio_features"][i]["midi_features"] = {
             {"note_matrix", results[i].track_info.note_matrix},
             {"note_count", results[i].track_info.note_count},
             {"bpms", results[i].bpms},
             {"durations", results[i].track_info.note_durations},
         };
-        // auto it = std::find(features_json["audio_features"].begin(), features_json["audio_features"].end(), spotify_ids[i]);
-        // if (it != features_json["audio_features"].end())
-        //     std::cout << "Element found in myvector: " << *it << '\n';
-        //     it
-        // else
-        //     std::cout << "Element not found in myvector\n";
-        // std::cout << "\n\n";
-        
-        // emotion_json["emotions"][features_json["audio_features"][i]["emotion"]]["songs"].push_back(features_json["audio_features"][i]);
+
         for (int j = 0; j < 13; j++) {
             for (int k = 0; k < 13; k++) {
                 emotion_to_notes[features_json["audio_features"][i]["emotion"]][j][k] += results[i].track_info.note_matrix[j][k];
             }
         }
 
+        emotion_to_modes[features_json["audio_features"][i]["emotion"]].push_back(features_json["audio_features"][i]["mode"]);
+        emotion_to_keys[features_json["audio_features"][i]["emotion"]][features_json["audio_features"][i]["key"]]++;
 
         for (int tempos : features_json["audio_features"][i]["midi_features"]["bpms"]) {
             emotion_to_tempos[features_json["audio_features"][i]["emotion"]].insert(tempos);
@@ -377,7 +350,6 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         // emotion_to_quarters[features_json["audio_features"][i]["emotion"]];
 
         emotion_to_note_count[features_json["audio_features"][i]["emotion"]] += results[i].track_info.note_count;
-        // std::cout << "\n\n";
     }
 
     for (auto &[emo, durations] : emotion_to_durations) {
@@ -389,7 +361,31 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         }         
         emotion_json["emotions"][emo]["durations_prob_matrix"] = duration_probs;
     }
-    
+
+    for (auto &[emo, keys] : emotion_to_keys) {
+        double sum{};
+        std::map<int, double> key_probs;
+        std::for_each(keys.begin(), keys.end(), [&sum](std::pair<int, int> p){sum += p.second;});
+        for (auto &[dur, freq] : keys) {        
+            key_probs[dur] = freq * 100.0 / sum;
+        }         
+        emotion_json["emotions"][emo]["key_prob_array"] = key_probs;
+    }
+
+    for (auto &[emo, modes] : emotion_to_modes) {
+        std::sort(
+            modes.begin(),
+            modes.end(),
+            [](int a, int b) {return a < b;}
+        );
+        for (auto mode : modes) {
+            std::cout << mode << ", ";
+        }
+        std::cout << "\n";
+        Logger::log(Logger::LOG_WARNING, "emo %s mode %d", emo.c_str(), modes[modes.size()/2]);
+        emotion_json["emotions"][emo]["mode"] = modes[modes.size()/2];
+    }
+
     for (auto &[emo, matrix] : emotion_to_notes) {
         std::array<std::array<double, 13>, 13> prob_matrix;
         for (int i = 0; i < 13; i++) {
@@ -406,12 +402,6 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         // seconds = ticks * seconds_per_tick
         emotion_json["emotions"][emo]["total_note_matrix"] = matrix;
         emotion_json["emotions"][emo]["prob_matrix"] =  prob_matrix;
-        // emotion_json["emotions"][emo].push_back({"total_note_matrix", matrix});
-        // emotion_json["emotions"][emo].push_back({"prob_matrix", prob_matrix});
-        // emotion_json["emotions"][emo].push_back({
-        //     {"total_note_matrix", matrix},
-        //     {"prob_matrix", prob_matrix}
-        // });
     }
 
     for (auto emo : EMO_TO_STR) {
@@ -419,13 +409,6 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         emotion_json["emotions"][emo]["total_note_count"] = emotion_to_note_count[emo];
         emotion_json["emotions"][emo]["tempos"] = emotion_to_tempos[emo];
     }
-
-    // f.open("data/features_midi.json", std::ios::out);
-    // if (f.fail())
-    //     std::cout << "deu ruim" << std::endl;
-    // else
-    //     f << features_json.dump(4);
-    // f.close();
 
     f.open("data/emotion_midi.json", std::ios::out);
     if (f.fail())

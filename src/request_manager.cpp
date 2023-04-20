@@ -123,7 +123,7 @@ void RequestManager::request_track_feature_from_list() {
 		request.setOpt(opt.begin(), opt.end());
 
 		if (file.fail()) {
-			std::cout << "deu ruim" << std::endl;
+			std::cout << "deu ruim1 " << std::endl;
         	file.close();
     	}
         
@@ -172,7 +172,7 @@ void RequestManager::request_track_feature_from_list() {
 		
 		std::fstream output_file("data/features.json", std::ios::out);;
 		if (output_file.fail()) {
-			std::cout << "deu ruim" << std::endl;
+			std::cout << "deu ruim 2" << std::endl;
         	output_file.close();
     	}
 		int i{};

@@ -3,6 +3,8 @@
 src/swift
 userconfig.txt
 data
+import
+dataog
 # Compiled Object files
 *.slo
 *.lo
