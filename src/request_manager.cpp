@@ -9,6 +9,7 @@
 #include "encoder.hpp"
 #include "logger.hpp"
 #include "request_manager.hpp"
+#include "database_manager.hpp"
 
 using std::chrono::seconds;
 using std::chrono::duration_cast;
@@ -99,13 +100,12 @@ RequestManager::~RequestManager() {
 	cURLpp::terminate();
 }
 
-void RequestManager::request_track_feature_from_list() {
+bool RequestManager::request_track_features() {
 		using namespace curlpp::Options;
 		using std::string;
-
+        DatabaseManager* dbm = DatabaseManager::GetInstance();
 		std::vector<string> song_list{};
 		string buf;
-		std::fstream file(SONGLIST_PATH, std::ios::in);
 		curlpp::Easy request;
 		nlohmann::json f_json;
 		std::vector<nlohmann::json> result_jsons;
@@ -121,19 +121,23 @@ void RequestManager::request_track_feature_from_list() {
 			new WriteStream(&result_stream)
 		};
 		request.setOpt(opt.begin(), opt.end());
+        std::vector<MidiFSEntry> no_feat_midis;
 
-		if (file.fail()) {
-			std::cout << "deu ruim" << std::endl;
-        	file.close();
-    	}
-        
-		// TODO: Verificar se a lista está vazia
-        // TODO: Usar a database em vez da songlist
-		while (true) {
-			if (song_list.size() < SPOTIFY_MAX_TRACK_REQ && !file.eof()) {
-				getline(file, buf);
-				if (buf.empty()) continue;
-				song_list.push_back(buf.substr(buf.rfind("|") + 1));
+        std::copy_if(
+            dbm->database.begin(),
+            dbm->database.end(),
+            std::back_inserter(no_feat_midis),
+            [](MidiFSEntry m){return !m.has_features;}
+        );
+
+        if (no_feat_midis.empty()) {
+            return false;
+        }
+        auto it_songs = no_feat_midis.begin();
+        while (true) {
+            if (song_list.size() < SPOTIFY_MAX_TRACK_REQ && it_songs != no_feat_midis.end()) {
+                song_list.push_back(it_songs->spotify_id());
+                it_songs++;
 			}
 			else {
 				if (!song_list.empty()) {
@@ -163,41 +167,13 @@ void RequestManager::request_track_feature_from_list() {
 							break;
 					}
 				}
-				if (file.eof()) break;
+				if (it_songs == no_feat_midis.end()) break;
 			}
-		}
-		for (auto it = result_jsons.begin() + 1; it != result_jsons.end(); it++) {
-			result_jsons[0]["audio_features"].push_back((*it)["audio_features"]);
-		}
+        }
+		dbm->save_features(no_feat_midis, result_jsons);
 		
-		std::fstream output_file("data/features.json", std::ios::out);;
-		if (output_file.fail()) {
-			std::cout << "deu ruim" << std::endl;
-        	output_file.close();
-    	}
-		int i{};
-		while(true) {
-			i = [result_jsons](int i)->int {
-				int j{};
-				for (auto feature : result_jsons[0]["audio_features"]) {
-					if(feature.is_null()) return j;
-					j++;
-				}
-				return -1;
-			}(i);
-			if (i >= 0) {
-                std::cout << "ACHOU NULO NA MÚSICA " << i << "\n";
-				result_jsons[0]["audio_features"].erase(i);
-            }
-			else
-				break;
-		}
-		// std::cout << "count json final: " << (result_jsons[0]["audio_features"].size()) << '\n';
-		// std::cout << "dps closure " << result_jsons[0].dump(4) << '\n';
-		// result_jsons[0]["audio_features"]
-		output_file << result_jsons[0].dump(4);
-		output_file.close();
         Logger::log(Logger::LOG_INFO, "Requisições a Spotify API realizadas com successo");
+        return true;
 }
 
 void RequestManager::request_track_feature_by_id(std::vector<std::string> song_id) {

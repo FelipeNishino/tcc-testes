@@ -110,7 +110,7 @@ static const std::vector<std::string> MIDIS_SPOTIFY_IDS = {
 };
 
 enum MAIN_FLAGS {
-    FLAG_REQUEST = 1,
+    FLAG_FEATURES = 1,
     FLAG_DEVICE = 1 << 1,
     FLAG_NO_PLAY = 1 << 2,
     FLAG_CONVERT = 1 << 3,
@@ -139,7 +139,7 @@ void get_options(int argc, char* const* argv) {
         {"analyze",     optional_argument,  &flags, FLAG_ANALYZE},
         {"convert",     no_argument,        &flags, FLAG_CONVERT},
         {"set-device",  no_argument,        &flags, FLAG_DEVICE},
-        {"features",    optional_argument,  &flags, FLAG_REQUEST},
+        {"db",          optional_argument,  &flags, FLAG_FEATURES},
         {"help",        no_argument,        &flags, FLAG_HELP},
         {"loglevel",    required_argument,  0, 'l'},
         {"no-play",     no_argument,        &flags, FLAG_NO_PLAY},
@@ -149,7 +149,7 @@ void get_options(int argc, char* const* argv) {
     
     int option_index = 0;
 
-    while ((c = getopt_long(argc, argv, "a::cdf::hl:n", options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "a::cdfhl:n", options, &option_index)) != -1) {
         switch (c) {
         case 0:
           /* If this option set a flag, do nothing else now. */
@@ -170,9 +170,7 @@ void get_options(int argc, char* const* argv) {
             flags |= FLAG_DEVICE;
             break;
         case 'f':
-            if (optarg)
-                RequestManager::set_songlist_dir(optarg);
-            flags |= FLAG_REQUEST;
+            flags |= FLAG_FEATURES;
             break;
         case 'h':
             flags |= FLAG_HELP;
@@ -225,11 +223,13 @@ void analyzer() {
     // ma.analyze_list({"teste_nnnc.mid", "teste_cnnn.mid"});
 }
 
-void requests() {
-    RequestManager rm;
-    rm.request_track_feature_from_list();
-    EmotionCategorizer::categorize();
-    // rm.request_track_feature_by_ids();
+void load_database() {
+    DatabaseManager* dbm = DatabaseManager::GetInstance();
+    RequestManager rm{};
+    if (rm.request_track_features()) {
+        dbm->reload();
+        // EmotionCategorizer::categorize();
+    }
 }
 
 void teste() {
@@ -324,19 +324,18 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     
-    if (flags & FLAG_CONVERT )  {
+    if (flags & FLAG_CONVERT)  {
         convert();
     }
 
-    if (flags & FLAG_REQUEST )  {
-        std::cout << "Performing requests..." << '\n';
-        requests();
+    if (flags & FLAG_FEATURES)  {
+        load_database();
     }
     
-    if (flags & FLAG_ANALYZE )  {
+    if (flags & FLAG_ANALYZE)  {
         analyzer();
     }
-    if (flags & FLAG_DEVICE ) {
+    if (flags & FLAG_DEVICE) {
         DeviceManager::set_flag(DeviceManager::FORCE_SET_DEVICE); 
     }
     if (flags & FLAG_NO_PLAY) {
