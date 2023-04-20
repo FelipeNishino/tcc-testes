@@ -55,10 +55,14 @@ class Engine {
         std::map<std::string, Markov*> emotion_to_cadeia_notas;
         std::map<std::string, std::vector<int>> emotion_to_bpms;
         std::map<std::string, std::map<double, double>> emotion_to_durations;
+        std::map<std::string, std::map<int, double>> emotion_to_keys;
+        std::map<std::string, int> emotion_to_mode;
         States states;
         std::mt19937 generator;
         std::atomic<Emotion> emotion;
         std::atomic<int> bpm;
+        std::atomic<int> mode;
+        std::atomic<int> key;
         int default_octave;
         StkWrapper wrapper;
         int get_note();
@@ -72,6 +76,8 @@ class Engine {
         // Singletons should not be assignable.
         void operator=(const Engine &) = delete;
         void get_bpm();
+        void get_mode();
+        void get_key();
         double get_duration();
         static Engine *GetInstance();
 

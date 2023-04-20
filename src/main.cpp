@@ -260,9 +260,9 @@ int main(int argc, char* argv[]) {
     if (flags & FLAG_NO_PLAY) {
         exit(EXIT_SUCCESS);
     }
-    
+
     Engine* engine = Engine::GetInstance();
-    
+
     // Engine* engine = Engine::GetInstance(std::vector<int>(25, 1));
     
     engine->play();

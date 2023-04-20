@@ -61,6 +61,7 @@ Engine::Engine() {
     // std::mt19937 gen(seed);
 
     // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    
     std::cout << "Tô aqui\n";
     generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
     emotion.store(none);
@@ -74,8 +75,12 @@ Engine::Engine() {
         
         // emotion_to_cadeia_notas.emplace("sad", Markov(matriz));
         emotion_to_bpms[emo] = vetor;
+        Logger::log(Logger::LOG_ERROR, "Tô aquiasdacasdccccc");
+        emotion_to_mode[emo] = emotion_json["emotions"][emo]["mode"];
 
+        Logger::log(Logger::LOG_ERROR, "Tô aquiasdacasdccccc123");
         emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
+        emotion_to_keys[emo] = emotion_json["emotions"][emo]["key_prob_array"].get<std::map<int, double>>();
     }
     
     // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
@@ -124,6 +129,29 @@ void Engine::get_bpm() {
     bpm.store(emotion_to_bpms[EMO_TO_STR[emotion.load()]].at(rd() % (emotion_to_bpms[EMO_TO_STR[emotion.load()]].size() - 1)));
 }
 
+void Engine::get_mode() {
+    mode.store(emotion_to_mode[EMO_TO_STR[emotion.load()]]);
+}
+
+void Engine::get_key() {
+    double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
+    double sum{};
+    int prox{};
+    for (auto &[key, prob] : emotion_to_keys[EMO_TO_STR[emotion]]) {
+        sum += prob;
+        prox = key;
+
+        // if (val < sum) break;  
+    }
+    
+    // if (prox == 12) {
+        // prox = proximo_estado(atual);
+    // }
+    // std::cout << "Soma: " << sum << '\n';
+    // std::cout << "Duracao: " << prox << '\n';
+    key.store(prox);
+}
+
 void Engine::get_emotion() {
     std::cout << "Current emotion: " << EMO_TO_STR[emotion.load()] << '\n';
     for (unsigned int i = 0; i < 4; i++) {
@@ -154,8 +182,11 @@ void Engine::listen_to_emotion_input() {
         get_emotion();
         std::cout << "\x1B[2J\x1B[H";
         get_bpm();
-        
         std::cout << "BPM: " << bpm.load() << '\n';
+        get_mode();
+        std::cout << "Escala: " << (mode.load() ? "Maior" : "Menor") << '\n';
+        get_key();
+        std::cout << "Tom: " << key.load() << '\n';
     }
 }
 
@@ -165,6 +196,11 @@ void Engine::play() {
         std::cout << "\x1B[2J\x1B[H";
         get_bpm();
         std::cout << "BPM: " << bpm.load() << '\n';
+        Logger::log(Logger::LOG_ERROR, "Tô aquiasdac");
+        get_mode();
+        std::cout << "Escala: " << (mode.load() ? "Maior" : "Menor") << '\n';
+        get_key();
+        std::cout << "Tom: " << key.load() << '\n';
     }
 
     std::thread first(&Engine::listen_to_emotion_input, this);
