@@ -4,7 +4,7 @@ BIN_DIR := ./bin
 BUILD_DIR := ./build
 SRC_DIRS := ./src
 INC_DIRS := ./include
-STATIC_LIBS := libs/libjsoncpp.a libs/libcurlpp.a libs/libmidifile.a
+STATIC_LIBS := libs/libcurlpp.a libs/libmidifile.a
 CFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
 CPPFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
 LDFLAGS += -Llibs -lstk -lcurl
