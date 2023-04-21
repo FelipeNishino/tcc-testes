@@ -35,7 +35,8 @@ void DatabaseManager::assert_data_dir_path() {
 
 void DatabaseManager::import_files() {
     std::filesystem::directory_entry d{ "import/" };
-
+    
+    Logger::log(Logger::LOG_INFO, "<Database> Importing songs to database...");
     if (d.exists() && d.is_directory()) {
         if (std::distance(std::filesystem::directory_iterator{d}, std::filesystem::directory_iterator{}) == 0) {
             Logger::log(Logger::LOG_INFO, "<Database> No songs to import.");
@@ -53,10 +54,10 @@ void DatabaseManager::import_files() {
                 midi_file.filename = filename;
                 midi_file.path = entry.path();
 
-                std::filesystem::path new_path{"data/" + midi_file.spotify_id()};
+                std::filesystem::path new_path{data_dir + midi_file.spotify_id()};
 
                 if (!std::filesystem::create_directories(new_path)) {
-                    Logger::log(Logger::LOG_WARNING, "<Database> Couldn't create directory data/%s.", midi_file.spotify_id().c_str());    
+                    Logger::log(Logger::LOG_WARNING, "<Database> Couldn't create directory %s%s.", data_dir.c_str(), midi_file.spotify_id().c_str());    
                     continue;
                 }
                 
@@ -118,16 +119,11 @@ void DatabaseManager::save_features(std::vector<MidiFSEntry> no_feat_midis, std:
         for (auto it = result_jsons.begin() + 1; it != result_jsons.end(); it++) {
 			result_jsons[0]["audio_features"].push_back((*it)["audio_features"]);
 		}
-		
-		std::fstream output_file("data/features.json", std::ios::out);
-		if (output_file.fail()) {
-			std::cout << "deu ruim" << std::endl;
-        	output_file.close();
-    	}
-		int i{};
+        
+        int i{};
 		while(true) {
 			i = [result_jsons](int i)->int {
-				int j{};
+				int j{i};
 				for (auto feature : result_jsons[0]["audio_features"]) {
 					if(feature.is_null()) return j;
 					j++;
@@ -135,7 +131,7 @@ void DatabaseManager::save_features(std::vector<MidiFSEntry> no_feat_midis, std:
 				return -1;
 			}(i);
 			if (i >= 0) {
-                std::cout << "ACHOU NULO NA MÚSICA " << i << "\n";
+                std::cout << "<Database> audio_features nulo na música " << i << ", removendo do json...\n";
 				result_jsons[0]["audio_features"].erase(i);
             }
 			else
@@ -152,16 +148,11 @@ void DatabaseManager::save_features(std::vector<MidiFSEntry> no_feat_midis, std:
             no_feat_midis.end(),
             [](MidiFSEntry ea, MidiFSEntry eb) {return ea.spotify_id() < eb.spotify_id();}
         );
-		// std::cout << "count json final: " << (result_jsons[0]["audio_features"].size()) << '\n';
-		// std::cout << "dps closure " << result_jsons[0].dump(4) << '\n';
-		// result_jsons[0]["audio_features"]
+
         for_each_zipped_containers(
             [](nlohmann::json feat, MidiFSEntry midi_entry) {
-                Logger::log(Logger::LOG_WARNING, "Tô aqui");
-
-                nlohmann::json result = {"audio_features", feat};
-                Logger::log(Logger::LOG_WARNING, "Vai tentar salvar em %s", midi_entry.path.replace_extension(".json").string().c_str());
-
+                nlohmann::json result;
+                result["audio_features"] = feat;
                 std::fstream output_file(midi_entry.path.replace_extension(".json").string(), std::ios::out);
                 if (output_file.fail()) {
 			        std::cout << "deu ruim" << std::endl;

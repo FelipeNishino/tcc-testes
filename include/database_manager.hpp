@@ -45,6 +45,7 @@ class DatabaseManager {
     public:
         void reload();
         static void set_data_dir(std::string path) { data_dir = path; }
+        static std::string get_data_dir() { return data_dir; }
         static DatabaseManager *GetInstance();
         std::vector<MidiFSEntry> database;
         void save_features(std::vector<MidiFSEntry> no_feat_midis, std::vector<nlohmann::json> result_jsons);

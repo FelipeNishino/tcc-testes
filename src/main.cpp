@@ -214,10 +214,7 @@ void convert() {
 
 void analyzer() {
     // MidiAnalyzer::set_containing_dir("data/midi/");
-    Logger::log(Logger::LOG_DEBUG, "Tô aqui");
     MidiAnalyzer ma;
-    Logger::log(Logger::LOG_DEBUG, "Tô aqui");
-    // ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
     ma.analyze_list();
     // ma.analyze_list({"Metal/6-Metallica_One.mid"});
     // ma.analyze_list({"teste_nnnc.mid", "teste_cnnn.mid"});
@@ -228,7 +225,7 @@ void load_database() {
     RequestManager rm{};
     if (rm.request_track_features()) {
         dbm->reload();
-        // EmotionCategorizer::categorize();
+        EmotionCategorizer::categorize();
     }
 }
 
