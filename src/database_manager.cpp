@@ -2,7 +2,6 @@
 #include "request_manager.hpp"
 #include "emotion_categorizer.hpp"
 #include "logger.hpp"
-#include "utils.hpp"
 #include "foreach_extra.hpp"
 
 
