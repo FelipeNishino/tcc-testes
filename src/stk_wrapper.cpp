@@ -8,7 +8,6 @@
 #include "engine.hpp"
 #include "midi.hpp"
 #include "stk_wrapper.hpp"
-#include "utils.hpp"
 #include "logger.hpp"
 
 StkWrapper::StkWrapper() {

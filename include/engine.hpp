@@ -19,22 +19,7 @@
 //         void play();
 // };
 
-enum Emotion {
-    happy,
-    sad,
-    angry,
-    relaxed,
-    none
-};
-
-// template<typename T>
-// struct enum_identity { 
-//   typedef T type; 
-// };
-
-// Emotion size(enum_identity<Emotion>) {
-//     return none;
-// }
+#include "emotion.hpp"
 
 struct States {
     int note_state{};
@@ -42,23 +27,28 @@ struct States {
     double duration_state{};
 };
 
+struct EmotionFeatures {    
+    Markov* note_chain;
+    std::vector<std::vector<int>> transition_count;
+    std::vector<int> bpms;
+    // std::map<double, double> durations;
+    std::map<int, double> keys;
+    int mode;
+};
+
 class Engine {
     private:
         static Engine * pinstance_;
         static std::mutex mutex_;
 
+        std::map<std::string, EmotionFeatures> emo_feats;
     protected:
         Engine();
         ~Engine() {}
     public:        
-        std::map<std::string, Markov*> emotion_to_cadeia_notas;
-        std::map<std::string, std::vector<int>> emotion_to_bpms;
-        std::map<std::string, std::map<double, double>> emotion_to_durations;
-        std::map<std::string, std::map<int, double>> emotion_to_keys;
-        std::map<std::string, int> emotion_to_mode;
         States states;
         std::mt19937 generator;
-        std::atomic<Emotion> emotion;
+        Emotion emotion;
         std::atomic<int> bpm;
         std::atomic<int> mode;
         std::atomic<int> key;

@@ -10,7 +10,7 @@
 #include "engine.hpp"
 #include "midi.hpp"
 #include "midi_analyzer.hpp"
-#include "utils.hpp"
+#include "emotion.hpp"
 #include "logger.hpp"
 /*
 NOTE ON/OFF
@@ -404,7 +404,7 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         emotion_json["emotions"][emo]["prob_matrix"] =  prob_matrix;
     }
 
-    for (auto emo : EMO_TO_STR) {
+    for (auto emo : Emotion::EMO_TO_STR) {
         std::cout << "emocao: " << emo << '\n';
         emotion_json["emotions"][emo]["total_note_count"] = emotion_to_note_count[emo];
         emotion_json["emotions"][emo]["tempos"] = emotion_to_tempos[emo];

@@ -2,7 +2,6 @@
 #include <iostream>
 #include "markov.hpp"
 #include "engine.hpp"
-#include "utils.hpp"
 
 // Markov::Markov(std::vector<int> m) {
 //     estado = c1;

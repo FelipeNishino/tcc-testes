@@ -5,7 +5,6 @@
 #include <thread>
 #include "libjson/json.hpp"
 #include "engine.hpp"
-#include "utils.hpp"
 #include "logger.hpp"
 #include "json.hpp"
 
@@ -60,23 +59,17 @@ Engine::Engine() {
     
     std::cout << "Tô aqui\n";
     generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
-    emotion.store(none);
+    emotion = Emotion::happy;
     bpm = 0;
     std::cout << "Tô aqui\n";
-    for (auto emo : EMO_TO_STR) {
-        matriz = emotion_json["emotions"][emo]["prob_matrix"];
-        emotion_to_cadeia_notas.insert(std::make_pair(emo, new Markov(matriz)));
-        
-        vetor = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
-        
-        // emotion_to_cadeia_notas.emplace("sad", Markov(matriz));
-        emotion_to_bpms[emo] = vetor;
-        Logger::log(Logger::LOG_ERROR, "Tô aquiasdacasdccccc");
-        emotion_to_mode[emo] = emotion_json["emotions"][emo]["mode"];
-
-        Logger::log(Logger::LOG_ERROR, "Tô aquiasdacasdccccc123");
-        emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
-        emotion_to_keys[emo] = emotion_json["emotions"][emo]["key_prob_array"].get<std::map<int, double>>();
+    for (auto emo : Emotion::EMO_TO_STR) {
+        Logger::log(Logger::LOG_INFO, "<Engine> Lendo json p/ emocao %s", emo.c_str());
+        emo_feats[emo].transition_count = emotion_json["emotions"][emo]["total_note_matrix"];
+        emo_feats[emo].keys = emotion_json["emotions"][emo]["key_prob_array"].get<std::map<int, double>>();
+        emo_feats[emo].mode = emotion_json["emotions"][emo]["mode"];
+        emo_feats[emo].bpms = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
+        std::vector<std::vector<double>> m(7, std::vector<double>(7, 0));
+        emo_feats[emo].note_chain = new Markov(m);
     }
     
     // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
@@ -96,7 +89,8 @@ Engine *Engine::GetInstance() {
 
 int Engine::get_note() {
     int note = states.note_state;
-    states.note_state = emotion_to_cadeia_notas[EMO_TO_STR[emotion]]->proximo_estado(note);
+    
+    states.note_state = emo_feats[emotion.str()].note_chain->proximo_estado(note);
     count_notas++;
     return note + 12 * default_octave;
 }
@@ -122,7 +116,7 @@ double Engine::get_duration() {
 
 void Engine::get_bpm() {
     std::random_device rd;
-    bpm.store(emotion_to_bpms[EMO_TO_STR[emotion.load()]].at(rd() % (emotion_to_bpms[EMO_TO_STR[emotion.load()]].size() - 1)));
+    bpm.store(emo_feats[emotion.str()].bpms.at(rd() % (emo_feats[emotion.str()].bpms.size() - 1)));
 }
 
 void Engine::get_mode() {
@@ -133,7 +127,7 @@ void Engine::get_key() {
     double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
     double sum{};
     int prox{};
-    for (auto &[key, prob] : emotion_to_keys[EMO_TO_STR[emotion]]) {
+    for (auto &[key, prob] : emo_feats[emotion.str()].keys) {
         sum += prob;
         prox = key;
 
@@ -149,9 +143,9 @@ void Engine::get_key() {
 }
 
 void Engine::get_emotion() {
-    std::cout << "Current emotion: " << EMO_TO_STR[emotion.load()] << '\n';
+    std::cout << "Current emotion: " << emotion.str() << '\n';
     for (unsigned int i = 0; i < 4; i++) {
-		std::cout << EMO_TO_STR[i] << " - " << i << '\n';
+		std::cout << Emotion::EMO_TO_STR[i] << " - " << i << '\n';
 	}
     std::cout << "Choose emotion [0-" << 3 << "]: ";
     std::string input;
@@ -169,7 +163,7 @@ void Engine::get_emotion() {
         new_emotion = 0;
     }
     else {
-        emotion.store(static_cast<Emotion>(new_emotion));
+        emotion = (static_cast<Emotion::emotions>(new_emotion));
     }
 }
 
@@ -187,7 +181,6 @@ void Engine::listen_to_emotion_input() {
 }
 
 void Engine::play() {
-    if (emotion.load() == none) {
         get_emotion();
         std::cout << "\x1B[2J\x1B[H";
         get_bpm();
