@@ -7,6 +7,7 @@
 #include "engine.hpp"
 #include "utils.hpp"
 #include "logger.hpp"
+#include "json.hpp"
 
 /**
  * Static methods should be defined outside the class.
@@ -24,12 +25,7 @@ std::mutex Engine::mutex_;
 Engine::Engine() {
     std::fstream f;
     nlohmann::json emotion_json;
-    f.open("data/emotion_midi.json", std::ios::in);
-    if (f.fail())
-        std::cout << "deu ruim" << std::endl;
-    else
-        emotion_json = nlohmann::json::parse(f);
-    f.close();
+    Json::read_json(&emotion_json, "data/emotion_midi.json");
 
     std::vector<std::vector<double>> matriz;
     std::vector<int> vetor{};
