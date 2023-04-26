@@ -9,6 +9,7 @@
 #include "midi.hpp"
 #include "stk_wrapper.hpp"
 #include "utils.hpp"
+#include "logger.hpp"
 
 StkWrapper::StkWrapper() {
     stk::Stk::showWarnings(true);
@@ -34,12 +35,13 @@ StkWrapper::StkWrapper() {
         }
     }
 	catch ( stk::StkError & ) {
-        std::cout << "Erro ao instanciar instrumentos" << std::endl;   
+        Logger::log(Logger::LOG_ERROR, "<StkWrapper> Erro ao instanciar instrumentos");
 	}
 }
 
 StkWrapper::~StkWrapper() {
     for (int i=0; i<3; i++ )  delete instruments[i];
+    Logger::log(Logger::LOG_ERROR, "<StkWrapper> Deletou instrumentos");
 }
 
 bool StkWrapper::has_message() { return !no_message; }
@@ -62,6 +64,7 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 	
 	while ( nTicks > 0 && !wrapper->is_done() ) {
 		if ( !wrapper->has_message() ) {
+
 			wrapper->message_from_note(engine->get_note());	
 
 			mt = wrapper->get_message_type();
@@ -87,7 +90,6 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 void StkWrapper::process_message() {
 	stk::StkFloat value1 = message.floatValues[0];
 	stk::StkFloat value2 = message.floatValues[1];
-
 	switch( message.type ) {
 		case __SK_Exit_:
 			done = true;
