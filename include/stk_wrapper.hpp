@@ -23,7 +23,7 @@ class StkWrapper {
         stk::Voicer* voicer;
 	    stk::Messager messager;
 	    stk::Skini::Message message;
-        RtAudio dac;
+        RtAudio dac{};
 	    int counter;
 	    bool no_message;
 	    bool done;
