@@ -73,9 +73,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
     if (midifile.isAbsoluteTicks()) {
         midifile.deltaTicks();
     }
-    // if (midifile.isDeltaTicks()) {
-        // midifile.absoluteTicks();
-    // }
 
     std::cout << "linked " << midifile.linkEventPairs() << " events\n";
 
@@ -96,10 +93,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
                 case note_on:
                     // std::cout << "Note on\n";
                     if (st.prev_on.set) {
-                        // std::cout << "First note\n";
-                        // j++;
-                        // st.prev_note_type = on;
-                        // continue;
                     
                         if (st.curr_ev.ev->tick == 0 && st.prev_note_type == on) {
                             if (chord_list.empty()) chord_list.push_back(st.prev_on.key);
@@ -161,8 +154,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
                     // std::cout << "Mudança de tom\n";// << st.curr_ev.ev.ge << "\n";
                     break;
                 case tempo:
-                    // tracks[i].tempos.push_back(TempoInfo());
-                    // double bpm = st.curr_ev.ev.getTempoBPM();
                     [&tracks, i](double _bpm){
                         double bpm = _bpm;
                         if (fmod(bpm, 5)) {
@@ -171,7 +162,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
                         }
                         tracks[i].bpm_timestamp[bpm].push_back(tracks[i].note_count);
                     }(st.curr_ev.ev->getTempoBPM());
-                    // std::cout.precision(20);
                     // std::cout << "Mudança de tempo: " << st.curr_ev.ev.getTempoBPM() << "\n";
                     
                     break;
@@ -188,16 +178,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
         }
         std::cout << '\n';
         unique_quarters.clear();
-        // display_note_ocurrence(tracks[i]);
-        // std::cout << "Tempos: \n";
-        // for (auto pair : tracks[i].bpm_timestamp) {
-        //     std::cout << "Tempo: " << pair.first << " notestamps: ";
-        //     for (auto notestamps : pair.second) {
-        //         std::cout << notestamps << " ";
-        //     }
-        //     std::cout << "\n";
-        // }
-        // tracks[i].note_matrix = std::array<std::array<int, 13>, 13>{0};
     }
     
     // for (int i = 0; i < midifile.getTrackCount(); i++) {
@@ -211,9 +191,6 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
 
     for (int i = 0; i < midifile.getTrackCount(); i++) {
         for (auto &[duration, freq] : tracks[i].note_durations) {
-            // std::cout.precision(17);
-            // std::cout << "track " << i << ": " << duration << " - " << freq << '\n';
-            // t += freq;
             feat.track_info.note_durations[duration] += freq;
         }
     }
@@ -258,26 +235,13 @@ MidiFeatures MidiAnalyzer::analyze(std::string midi_name) {
         for (auto bpm_freq_pair : track.bpm_timestamp) {
             feat.bpms.insert(bpm_freq_pair.first);
         }
-        // int t{};
         for (auto &[duration, freq] : track.note_durations) {
-            // std::cout.precision(17);
-            // std::cout << duration << ": " << freq << '\n';
-            // t += freq;
             feat.track_info.note_durations[duration] += freq;
         }
-        // std::cout << t << '\n';
         
         feat.track_info.note_count += track.note_count;
     }
-    // int t{};
     
-    // for (auto &[duration, freq] : feat.track_info.note_durations) {
-            // t += freq;
-            // std::cout.precision(17);
-            // std::cout << duration << ": " << freq << '\n';
-            // feat.track_info.note_durations[duration] += freq;
-        // }
-        // std::cout << "Total: " <<  t << '\n';
     return feat;
 }
 
@@ -310,11 +274,6 @@ void MidiAnalyzer::analyze_list(std::vector<MidiFSEntry> midi_list) {
     std::map<std::string, std::set<int>> emotion_to_tempos;
     std::map<std::string, std::map<double, int>> emotion_to_durations;
     std::map<std::string, std::map<int, int>> emotion_to_quarters;
-
-    // emotion_json["emotions"]["happy"]["songs"] = json::array();
-    // emotion_json["emotions"]["relaxed"]["songs"] = json::array();
-    // emotion_json["emotions"]["angry"]["songs"] = json::array();
-    // emotion_json["emotions"]["sad"]["songs"] = json::array();
 
     for_each_zipped_containers(
         [&emotion_to_notes, &emotion_to_note_count, &emotion_to_modes, &emotion_to_keys, &emotion_to_tempos, &emotion_to_durations, &emotion_to_quarters]
@@ -357,7 +316,6 @@ void MidiAnalyzer::analyze_list(std::vector<MidiFSEntry> midi_list) {
             // emotion_to_quarters[features_json["audio_features"]["emotion"]];
 
             emotion_to_note_count[features_json["audio_features"]["emotion"]] += midi_feats.track_info.note_count;
-        // std::cout << "\n\n";
         }, results, midi_list);
 
     // for (auto &[emo, durations] : emotion_to_durations) {

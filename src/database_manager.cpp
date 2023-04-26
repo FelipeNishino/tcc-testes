@@ -8,11 +8,6 @@
 DatabaseManager* DatabaseManager::pinstance_{nullptr};
 std::mutex DatabaseManager::mutex_;
 
-/**
- * The first time we call GetInstance we will lock the storage location
- *      and then we make sure again that the variable is null and then we
- *      set the value. RU:
- */
 DatabaseManager::DatabaseManager() {
     import_files();
     load_files_from_data_dir();

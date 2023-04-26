@@ -20,16 +20,11 @@ StkWrapper::StkWrapper() {
 	now_playing = std::set<float>();
     voicer = new stk::Voicer{};
     configure();
-	// instrument = new stk::BeeThree();
-    // instrument = new stk::Guitar();
-    // instrument = new stk::Mandolin(120); // Interessante
     stk::Instrmnt *instrument[3];
     for (int i = 0; i<3; i++ ) instrument[i] = 0;
     try {
-	// Define and load the BeeThree instruments
         for (int i = 0; i < 3; i++) {
 			instrument[i] = new stk::Mandolin(120);
-			// instrument[i] = new stk::BeeThree();
 			voicer->addInstrument(instrument[i]);
         }
     }
@@ -140,25 +135,18 @@ void StkWrapper::list_devices() {
 
 void StkWrapper::message_from_note(int note) {
 	message.type = __SK_NoteOn_;
-    // std::cout << "Nota gerada: " << note << std::endl;
-	// message.floatValues[0] = Midi::NOTE_TO_MIDI_KEY[note];
     message.floatValues[0] = note;
-	// std::cout << "Nota na mensagem: " << message.floatValues[0] << std::endl;
 	message.floatValues[1] = 64;
 	message.channel = 1;
 	Engine* engine = Engine::GetInstance();
     message.time = ( engine->count_notas == 1 ? 0 : 60.0/double(engine->bpm.load()) );
-	// message.time = (1);
     // message.time = ( engine->count_notas == 1 ? 0 : engine->get_duration());
     
-	// std::cout << engine->count_notas << std::endl;
 	// message.time = 0.002;
 	// message.time = 0.5;
 	no_message = false;
     	// if (message.type == __SK_NoteOn_) {
 	// 	message.type = __SK_NoteOff_;
-	// 	Engine* engine = Engine::GetInstance();
-	// 	std::cout.precision(17);
 	// 	std::cout << "duracao bpm: " << 60.0/double(engine->bpm.load()) << '\n' << "tempo: " << message.time << '\n'; 
     // 	message.time = 60.0/double(engine->bpm.load()) - message.time;    
 	// }
@@ -170,7 +158,6 @@ void StkWrapper::raise_error() {
 
 void StkWrapper::configure() {
     RtAudio::StreamParameters parameters;
-	// list_devices();
     DeviceManager dm;
 	
 	parameters.deviceId = dm.get_device_id();

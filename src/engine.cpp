@@ -8,18 +8,8 @@
 #include "logger.hpp"
 #include "json.hpp"
 
-/**
- * Static methods should be defined outside the class.
- */
-
 Engine* Engine::pinstance_{nullptr};
 std::mutex Engine::mutex_;
-
-/**
- * The first time we call GetInstance we will lock the storage location
- *      and then we make sure again that the variable is null and then we
- *      set the value. RU:
- */
 
 Engine::Engine() {
     std::fstream f;
@@ -27,20 +17,6 @@ Engine::Engine() {
     Json::read_json(&emotion_json, "data/emotion_midi.json");
 
     std::random_device rd;
-    // seed value is designed specifically to make initialization
-    // parameters of std::mt19937 (instance of std::mersenne_twister_engine<>)
-    // different across executions of application
-    // const auto p0 = 
-    // std::mt19937::result_type seed = rd() ^ (
-    //         (std::mt19937::result_type)
-    //         std::chrono::duration_cast<std::chrono::seconds>(
-    //             std::chrono::system_clock::now().time_since_epoch()
-    //             ).count() +
-    //         (std::mt19937::result_type)
-    //         std::chrono::duration_cast<std::chrono::microseconds>(
-    //             std::chrono::high_resolution_clock::now().time_since_epoch()
-    //             ).count() );
-
     std::mt19937::result_type seed = rd() ^ (
             (std::mt19937::result_type)
             std::chrono::duration_cast<std::chrono::seconds>(
@@ -50,10 +26,6 @@ Engine::Engine() {
             std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
                 ).count() );
-
-    // std::mt19937 gen(seed);
-
-    // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     
     generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
     emotion = Emotion::happy;
@@ -70,9 +42,6 @@ Engine::Engine() {
         Logger::log(Logger::LOG_INFO, "<Engine> Emoção %s carregada", emo.c_str());
         // emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
     }
-    
-    // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
-    // emotion_to_cadeia_notas.emplace("relaxed", Markov(emotion_json["emotions"]["relaxed"]["note_matrix"]));
 
     default_octave = 4;
     count_notas = 0;
@@ -134,18 +103,13 @@ void Engine::get_key() {
     double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
     double sum{};
     int prox{};
+    //TODO: Verificar se um mapa em c++ é ordenado, pois a ordem do mapa afeta o processo de selecão do tom
     for (auto &[key, prob] : emo_feats[emotion.str()].keys) {
         sum += prob;
         prox = key;
 
         if (val < sum) break;  
     }
-    
-    // if (prox == 12) {
-        // prox = proximo_estado(atual);
-    // }
-    // std::cout << "Soma: " << sum << '\n';
-    // std::cout << "Duracao: " << prox << '\n';
     key.store(prox);
 }
 
@@ -255,13 +219,6 @@ void Engine::play() {
 
     std::thread first(&Engine::listen_to_emotion_input, this);
 
-    // int TOTAL = 20825;
-    // std::array<std::array<int, 13>, 13> hist{0};
-    
-    // for (int i = 0; i < TOTAL; i++) {
-    //     int past = get_note();
-    //     hist[past][states.note_state]++;
-    // }
     try {
 	    wrapper.toggle_stream(true);
 	}
@@ -275,7 +232,6 @@ void Engine::play() {
 	while ( !wrapper.is_done() )
         stk::Stk::sleep(1000);
 	
-
 	// Shut down the callback and output stream.
     Logger::log(Logger::LOG_INFO, "<Engine> Fechando a stream...");
 	try {

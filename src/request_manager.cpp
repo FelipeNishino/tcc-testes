@@ -155,7 +155,6 @@ bool RequestManager::request_track_features() {
 							result_jsons.push_back(nlohmann::json::parse(result_stream.str()));
 							result_stream.clear();
 							result_stream.str("");
-							// std::cout << "Features recebidos: " << (result_json["audio_features"].size()) << '\n';
 							break;
 						case 400 ... 499:
 							std::cout << "\n Request error: " << response_code << '\n';
@@ -178,10 +177,6 @@ bool RequestManager::request_track_features() {
 
 void RequestManager::request_track_feature_by_id(std::vector<std::string> song_id) {
 		using namespace curlpp::Options;
-    	
-		// if (song_id.empty()) {
-		// 	read_song_list();
-		// }
 
 		curlpp::Easy request;
 		nlohmann::json result_json;
@@ -208,9 +203,7 @@ void RequestManager::request_track_feature_by_id(std::vector<std::string> song_i
 		long response_code = curlpp::infos::ResponseCode::get(request);
 		switch (response_code) {
 			case 200 ... 299:
-				// std::cout << "Sucesso: " << response_code << '\n';
 				result_json = nlohmann::json::parse(result_stream.str());
-				// std::cout << "Features recebidos: " << (result_json["audio_features"]) << '\n';
 				break;
 			case 400 ... 499:
 				std::cout << "Request error: " << response_code << '\n';
@@ -225,48 +218,9 @@ void RequestManager::request_track_feature_by_id(std::vector<std::string> song_i
 		}
 }
 
-// void RequestManager::request_track_feature_by_id(std::string song_id) {
-// 	curlpp::Easy request;
-// 	using namespace curlpp::Options;
-// 	nlohmann::json result_json;
-// 	std::list<std::string> header {
-// 		"Content-Type: application/json",
-// 		"Authorization: " + auth_token,
-// 	}; 
-// 	std::ostringstream result_stream;
-
-// 	std::vector<curlpp::OptionBase *> opt{
-// 		new Url(SPOTIFY_BASE_URL + "/audio-features/" + song_id),
-// 		new HttpHeader(header),
-// 		new HttpGet(true),
-// 		// new WriteStream(&result_stream)
-// 	};
-	
-// 	request.setOpt(opt.begin(), opt.end());
-
-// 	perform_request(&request);
-
-// 	long response_code = curlpp::infos::ResponseCode::get(request);
-// 	switch (response_code) {
-// 		case 200 ... 299:
-// 			// std::cout << "Sucesso: " << response_code << '\n';
-// 			// result_json = nlohmann::json::parse(result_stream.str());
-// 			break;
-// 		case 400 ... 499:
-// 			std::cout << "Request error: " << response_code << '\n';
-// 			break;
-// 		case 500 ... 599:
-// 			std::cout << "Server error" << response_code << '\n';
-// 			break;		
-// 		default:
-// 			break;
-// 	}
-  	
-// }
-
 void RequestManager::perform_request(curlpp::Easy *req) {
 	const auto interval = duration_cast<seconds>(auth_expiration.time_since_epoch());
-	// TODO: N TA FUNFANDO
+	// TODO: Arrumar o armazenamento do auth_expiration para refazer autenticão quando necessário
 	if (interval.count() > 3600) {
 		// std::cout << "Intervalo: " << interval.count() << "\n";
 		// retrieve_auth_token();

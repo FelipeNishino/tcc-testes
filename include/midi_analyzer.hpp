@@ -10,8 +10,6 @@
 #include "libmidifile/MidiEvent.hpp"
 #include "libmidifile/MidiFile.hpp"
 #include "database_manager.hpp"
-// #include <filesystem>
-// #include "midi.hpp"
 
 enum EventType {
     note_on,

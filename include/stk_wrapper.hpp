@@ -18,7 +18,6 @@
 
 class StkWrapper {
     private:
-        // stk::Voicer voicer;
         std::array<stk::Instrmnt*, 3> instruments;
         stk::Voicer* voicer;
 	    stk::Messager messager;
@@ -30,15 +29,6 @@ class StkWrapper {
         std::set<float> now_playing;
         void configure();
         void raise_error();
-        // int tick(
-        //     void *outputBuffer,
-        //     void *inputBuffer,
-        //     unsigned int nBufferFrames,
-        //     double streamTime,
-        //     RtAudioStreamStatus status,
-        //     void *dataPointer
-        //     );
-        // float freq_to_midi_note(float freq);
     public:
         void list_devices();
         void process_message();

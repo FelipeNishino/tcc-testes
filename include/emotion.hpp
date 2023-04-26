@@ -5,14 +5,6 @@
 #include <atomic>
 #include <string>
 
-// BEGIN_ENUM(Emotion)
-// {
-//     DECL_ENUM_ELEMENT(happy),
-//     DECL_ENUM_ELEMENT(sad),
-//     DECL_ENUM_ELEMENT(angry),
-//     DECL_ENUM_ELEMENT(relaxed),
-// } END_ENUM(Emotion)
-
 struct Emotion {
     public:
         static inline const std::vector<std::string> EMO_TO_STR = {"happy", "sad", "angry", "relaxed"};

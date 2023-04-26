@@ -14,15 +14,6 @@ DeviceManager::DeviceManager() {
     if (flags & FORCE_SET_DEVICE) {
         device_id = set_default_device();
     }
-    // device_id = (int*) malloc(sizeof(int));
-    // device_id = nullptr;
-    // namespace fs = std::filesystem;
-    // fs::path f{ "file.txt" };
-    // std::cout << "asd" << std::endl;
-    
-    // if (std::filesystem::exists(std::filesystem::path{"file.txt"})) std::cout << "yes";
-    // else               std::cout << "nope";
-    // device_id = -1;
 }
 
 int DeviceManager::get_id_from_name() {

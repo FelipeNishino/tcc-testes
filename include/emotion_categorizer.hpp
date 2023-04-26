@@ -29,8 +29,6 @@ class EmotionCategorizer {
                     json_path.replace_extension(".json");
                     Json::read_json(&song_json, json_path.string());
 
-                    // abs(1-;2*(1-0.8));
-
                     song_json["audio_features"]["emotion"] = [](json feat_json)->std::string {
                         if (feat_json["valence"] > 0.5) return (feat_json["energy"] > 0.5 ? "happy" : "relaxed");
                         else return (feat_json["energy"] > 0.5 ? "angry" : "sad");
