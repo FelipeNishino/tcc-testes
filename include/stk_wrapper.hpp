@@ -8,6 +8,7 @@
 #include <stk/RtAudio.h>
 #include <stk/Stk.h>
 #include <set>
+#include <array>
 #include <stk/Messager.h>
 #include <stk/Guitar.h>
 #include <stk/Mandolin.h>
@@ -18,6 +19,7 @@
 class StkWrapper {
     private:
         // stk::Voicer voicer;
+        std::array<stk::Instrmnt*, 3> instruments;
         stk::Voicer* voicer;
 	    stk::Messager messager;
 	    stk::Skini::Message message;
@@ -51,6 +53,7 @@ class StkWrapper {
         long get_required_counter();
         stk::StkFloat get_sample();
         StkWrapper();
+        ~StkWrapper();
 };
 
 #endif //TCC_STKWRAPPER_H

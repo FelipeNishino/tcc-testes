@@ -21,11 +21,11 @@ StkWrapper::StkWrapper() {
 	// instrument = new stk::BeeThree();
     // instrument = new stk::Guitar();
     // instrument = new stk::Mandolin(120); // Interessante
-
     stk::Instrmnt *instrument[3];
+    for (int i = 0; i<3; i++ ) instrument[i] = 0;
     try {
 	// Define and load the BeeThree instruments
-        for ( int i=0; i<3; i++ ) {
+        for (int i = 0; i < 3; i++) {
 			instrument[i] = new stk::Mandolin(120);
 			// instrument[i] = new stk::BeeThree();
 			voicer->addInstrument(instrument[i]);
@@ -34,6 +34,10 @@ StkWrapper::StkWrapper() {
 	catch ( stk::StkError & ) {
         std::cout << "Erro ao instanciar instrumentos" << std::endl;   
 	}
+}
+
+StkWrapper::~StkWrapper() {
+    for (int i=0; i<3; i++ )  delete instruments[i];
 }
 
 bool StkWrapper::has_message() { return !no_message; }
@@ -172,6 +176,7 @@ void StkWrapper::configure() {
 	RtAudioFormat format = ( sizeof(stk::StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
 	unsigned int bufferFrames = stk::RT_BUFFER_SIZE;
     // 1/4
+    
     
 	try {
 		dac.openStream( &parameters, NULL, format, (unsigned int)stk::Stk::sampleRate(), &bufferFrames, &tick, NULL );
