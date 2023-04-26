@@ -306,7 +306,7 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
     std::map<std::string, std::vector<int>> emotion_to_modes;
     std::map<std::string, std::map<int, int>> emotion_to_keys;
     std::map<std::string, std::set<int>> emotion_to_tempos;
-    std::map<std::string, std::map<double, int>> emotion_to_durations;
+    // std::map<std::string, std::map<double, int>> emotion_to_durations;
     std::map<std::string, std::map<int, int>> emotion_to_quarters;
     json features_json;
 
@@ -343,24 +343,24 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
             emotion_to_tempos[features_json["audio_features"][i]["emotion"]].insert(tempos);
         }
 
-        for (auto &[duration, freq] : features_json["audio_features"][i]["midi_features"]["durations"].get<std::map<double, int>>()) { 
-            emotion_to_durations[features_json["audio_features"][i]["emotion"]][duration] = freq;
-        }   
+        // for (auto &[duration, freq] : features_json["audio_features"][i]["midi_features"]["durations"].get<std::map<double, int>>()) { 
+        //     emotion_to_durations[features_json["audio_features"][i]["emotion"]][duration] = freq;
+        // }   
 
         // emotion_to_quarters[features_json["audio_features"][i]["emotion"]];
 
         emotion_to_note_count[features_json["audio_features"][i]["emotion"]] += results[i].track_info.note_count;
     }
 
-    for (auto &[emo, durations] : emotion_to_durations) {
-        double sum{};
-        std::map<double, double> duration_probs;
-        std::for_each(durations.begin(), durations.end(), [&sum](std::pair<double, int> p){sum += p.second;});
-        for (auto &[dur, freq] : durations) {        
-            duration_probs[dur] = freq * 100.0 / sum;
-        }         
-        emotion_json["emotions"][emo]["durations_prob_matrix"] = duration_probs;
-    }
+    // for (auto &[emo, durations] : emotion_to_durations) {
+    //     double sum{};
+    //     std::map<double, double> duration_probs;
+    //     std::for_each(durations.begin(), durations.end(), [&sum](std::pair<double, int> p){sum += p.second;});
+    //     for (auto &[dur, freq] : durations) {        
+    //         duration_probs[dur] = freq * 100.0 / sum;
+    //     }         
+    //     emotion_json["emotions"][emo]["durations_prob_matrix"] = duration_probs;
+    // }
 
     for (auto &[emo, keys] : emotion_to_keys) {
         double sum{};

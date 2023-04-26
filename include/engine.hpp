@@ -24,7 +24,7 @@
 struct States {
     int note_state{};
     int tempo_state{};
-    double duration_state{};
+    // double duration_state{};
 };
 
 struct EmotionFeatures {    
@@ -67,7 +67,7 @@ class Engine {
         void get_bpm();
         void get_mode();
         void get_key();
-        double get_duration();
+        // double get_duration();
         static Engine *GetInstance();
 
         // std::string value() const{

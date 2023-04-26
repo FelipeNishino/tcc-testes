@@ -70,6 +70,7 @@ Engine::Engine() {
         emo_feats[emo].bpms = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
         std::vector<std::vector<double>> m(7, std::vector<double>(7, 0));
         emo_feats[emo].note_chain = new Markov(m);
+        // emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
     }
     
     // emotion_to_cadeia_notas.emplace("angry", Markov(emotion_json["emotions"]["angry"]["note_matrix"]));
@@ -95,24 +96,24 @@ int Engine::get_note() {
     return note + 12 * default_octave;
 }
 
-double Engine::get_duration() {
-    double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
-    double sum{};
-    int prox{};
-    for (auto prob : emotion_to_durations[EMO_TO_STR[emotion]]) {
-        sum += prob.second;
-        prox = prob.first;
+// double Engine::get_duration() {
+//     double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
+//     double sum{};
+//     int prox{};
+//     for (auto prob : emotion_to_durations[EMO_TO_STR[emotion]]) {
+//         sum += prob.second;
+//         prox = prob.first;
 
-        // if (val < sum) break;  
-    }
+//         // if (val < sum) break;  
+//     }
     
-    // if (prox == 12) {
-        // prox = proximo_estado(atual);
-    // }
-    std::cout << "Soma: " << sum << '\n';
-    std::cout << "Duracao: " << prox << '\n';
-    return prox;    
-}
+//     // if (prox == 12) {
+//         // prox = proximo_estado(atual);
+//     // }
+//     std::cout << "Soma: " << sum << '\n';
+//     std::cout << "Duracao: " << prox << '\n';
+//     return prox;    
+// }
 
 void Engine::get_bpm() {
     std::random_device rd;
