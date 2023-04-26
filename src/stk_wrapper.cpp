@@ -12,6 +12,8 @@
 
 StkWrapper::StkWrapper() {
     stk::Stk::showWarnings(true);
+    stk::Stk::setRawwavePath( "./rawwaves/" );
+    
     counter = 0;
     no_message = true;
     done = false;
