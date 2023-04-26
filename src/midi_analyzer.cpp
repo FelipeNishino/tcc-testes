@@ -317,10 +317,10 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         features_json = json::parse(f);         
     f.close();
 
-    emotion_json["emotions"]["happy"]["songs"] = json::array();
-    emotion_json["emotions"]["relaxed"]["songs"] = json::array();
-    emotion_json["emotions"]["angry"]["songs"] = json::array();
-    emotion_json["emotions"]["sad"]["songs"] = json::array();
+    // emotion_json["emotions"]["happy"]["songs"] = json::array();
+    // emotion_json["emotions"]["relaxed"]["songs"] = json::array();
+    // emotion_json["emotions"]["angry"]["songs"] = json::array();
+    // emotion_json["emotions"]["sad"]["songs"] = json::array();
 
     for (int i = 0; i < results.size(); i++) {
         features_json["audio_features"][i]["midi_features"] = {
