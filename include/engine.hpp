@@ -6,19 +6,6 @@
 #include <mutex>
 #include "markov.hpp"
 #include "stk_wrapper.hpp"
-
-// class Engine {
-//     public:
-//         Markov cadeia_notas;
-//         StkWrapper wrapper;
-//         Engine(int n, int* m_notas)
-//         :
-//         cadeia_notas(n, m_notas)
-//         {}
-//         void get_nota();
-//         void play();
-// };
-
 #include "emotion.hpp"
 
 struct States {
@@ -70,9 +57,6 @@ class Engine {
         // double get_duration();
         static Engine *GetInstance();
 
-        // std::string value() const{
-        //     return value_;
-        // } 
 };
 
 

@@ -26,8 +26,6 @@ Engine::Engine() {
     nlohmann::json emotion_json;
     Json::read_json(&emotion_json, "data/emotion_midi.json");
 
-    std::vector<std::vector<double>> matriz;
-    std::vector<int> vetor{};
     std::random_device rd;
     // seed value is designed specifically to make initialization
     // parameters of std::mt19937 (instance of std::mersenne_twister_engine<>)
@@ -57,11 +55,9 @@ Engine::Engine() {
 
     // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     
-    std::cout << "Tô aqui\n";
     generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
     emotion = Emotion::happy;
     bpm = 0;
-    std::cout << "Tô aqui\n";
     for (auto emo : Emotion::EMO_TO_STR) {
         Logger::log(Logger::LOG_INFO, "<Engine> Lendo json p/ emocao %s", emo.c_str());
         emo_feats[emo].transition_count = emotion_json["emotions"][emo]["total_note_matrix"];
