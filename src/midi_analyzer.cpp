@@ -335,7 +335,7 @@ void MidiAnalyzer::analyze_list(std::vector<MidiFSEntry> midi_list) {
         for (auto &[dur, freq] : keys) {        
             key_probs[dur] = freq * 100.0 / sum;
         }         
-        emotion_json["emotions"][emo]["key_prob_array"] = key_probs;
+        emotion_json["emotions"][emo]["key_probabilities"] = key_probs;
     }
 
     for (auto &[emo, modes] : emotion_to_modes) {
@@ -353,26 +353,17 @@ void MidiAnalyzer::analyze_list(std::vector<MidiFSEntry> midi_list) {
     }
 
     for (auto &[emo, matrix] : emotion_to_notes) {
-        std::array<std::array<double, 13>, 13> prob_matrix;
-        for (int i = 0; i < 13; i++) {
-            double sum{};
-            std::for_each(matrix[i].begin(), matrix[i].end(), [&sum](int a){sum += a;});
-            for (int j = 0; j < 13; j++) {
-                prob_matrix[i][j] = (double)matrix[i][j] * 100.0 / sum;
-            }
-        }
         // ticks_per_quarter = <PPQ from the header>
         // µs_per_quarter = <Tempo in latest Set Tempo event>
         // µs_per_tick = µs_per_quarter / ticks_per_quarter
         // seconds_per_tick = µs_per_tick / 1.000.000
         // seconds = ticks * seconds_per_tick
-        emotion_json["emotions"][emo]["total_note_matrix"] = matrix;
-        emotion_json["emotions"][emo]["prob_matrix"] =  prob_matrix;
+        emotion_json["emotions"][emo]["transition_count"] = matrix;
     }
 
     for (auto emo : Emotion::EMO_TO_STR) {
         std::cout << "emocao: " << emo << '\n';
-        emotion_json["emotions"][emo]["total_note_count"] = emotion_to_note_count[emo];
+        emotion_json["emotions"][emo]["note_count"] = emotion_to_note_count[emo];
         emotion_json["emotions"][emo]["tempos"] = emotion_to_tempos[emo];
     }
 

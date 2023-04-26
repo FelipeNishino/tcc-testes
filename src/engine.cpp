@@ -32,8 +32,8 @@ Engine::Engine() {
     bpm = 0;
     for (auto emo : Emotion::EMO_TO_STR) {
         Logger::log(Logger::LOG_INFO, "<Engine> Lendo json p/ emocao %s", emo.c_str());
-        emo_feats[emo].transition_count = emotion_json["emotions"][emo]["total_note_matrix"];
-        emo_feats[emo].keys = emotion_json["emotions"][emo]["key_prob_array"].get<std::map<int, double>>();
+        emo_feats[emo].transition_count = emotion_json["emotions"][emo]["transition_count"];
+        emo_feats[emo].keys = emotion_json["emotions"][emo]["key_probabilities"].get<std::map<int, double>>();
         emo_feats[emo].mode = emotion_json["emotions"][emo]["mode"];
         emo_feats[emo].bpms = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
         std::vector<std::vector<double>> m(7, std::vector<double>(7, 0));
