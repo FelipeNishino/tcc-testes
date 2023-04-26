@@ -12,102 +12,18 @@
 #include "engine.hpp"
 #include "logger.hpp"
 #include "midi.hpp"
+#include "json.hpp"
 #include "midi_analyzer.hpp"
 #include "path_helper.hpp"
 #include "request_manager.hpp"
+#include <filesystem>
 // Ordem das musicas no yt
 // 9 4 2 0 1 3 8 6 5 7 
 // static const std::vector<std::string> MAIN_OPTIONS = {"-f", "--audio-features", "-d", "--set-device", "-c", "--convert", "-a", "--analyze", "--no-play"};
 static int flags{};
 
-static const std::vector<std::string> MIDIS = {
-"Jazz/1-FLY_ME_TO_THE_MOON.mid",
-"Jazz/2-The_Entertainer_-_Scott_Joplin.mid",
-"Jazz/3-Ballade_Pour_Adeline.mid",
-"Jazz/4-Ylang_Ylang_-_FKJ__Transcribed_by_LilRoo.mid",
-"Jazz/5-Maple_Leaf_Rag_Scott_Joplin.mid",
-"Jazz/6-Youre_A_Mean_One_Mr._Grinch_jazz_virtuoso_piano_arr..mid",
-"Jazz/7-Linus_and_Lucy.mid",
-"Jazz/8-Take_Five_-_Dave_Brubeck-_.mid",
-"Jazz/9-MOON_RIVER_.mid",
-"Jazz/10-My_Way_-_Frank_Sinatra_-_Alto_Saxophone.mid",
-"Metal/1-In_the_End_-_Linkin_Park.mid",
-"Metal/2-Fairy_Tail_Sad_Theme.mid",
-"Metal/3-Sonne.mid",
-"Metal/4-The_Unforgiven.mid",
-"Metal/5-What_Ive_Done_-_Linkin_Park.mid",
-"Metal/6-Metallica_One.mid",
-"Metal/7-Through_the_Fire_and_Flames.mid",
-"Metal/8-Mary_On_A_Cross.mid",
-"Metal/9-Metallica_Enter_Sandman.mid",
-"Metal/10-Hello__piano.mid",
-"Pop/1-Someone_You_Loved.mid",
-"Pop/2-Never_Gonna_Give_You_Up.mid",
-"Pop/3-Lovely_-_Billie_Eilish_with_Khalid.mscz.mid",
-"Pop/4-ColdPlay-_Viva_la_vida.mid",
-"Pop/5-Take_on_Me_-_a-ha.mid",
-"Pop/6-Something_Just_Like_This-The_Chainsmokers.mid",
-"Pop/7-Rihanna_ft._Mikky_Echo_-_Stay.mid",
-"Pop/8-Marshmello_ft._Bastille_-_Happier.mscz.mid",
-"Pop/9-Dynamite__BTS.mid",
-"Pop/10-Listen_To_Your_Heart__Roxette.mid",
-"Reggae/1-Petit_Fleur_-_Sidney_Bechet.mid",
-"Reggae/2-Dois_Coraes_-_Melim_Partitura.mid",
-"Reggae/3-It_Must_Be_Love.mid",
-"Reggae/4-Buffalo_Soldier.mid",
-"Reggae/5-Rude_-_MAGIC.mid",
-"Reggae/6-Santeria.mscz.mid",
-"Reggae/7-Madness_-_Our_House.mscz.mid",
-"Reggae/8-I_This_Love__Bob_Marley.mid",
-"Reggae/9-One_Step_Beyond.mid",
-"Reggae/10-Meu_Abrigo_C_-_melodia_e_cifras.mid",
-};
-
-static const std::vector<std::string> MIDIS_SPOTIFY_IDS = {
-"7FXj7Qg3YorUxdrzvrcY25",
-"0abhXJIOH1NqbsXLaZD2DI",
-"3kK2DCW85mxXaFeL0wCvRc",
-"2CuUB5MbfRShtunR8g5hjR",
-"4AE032Y0x1WPOi5CsmggnU",
-"6TXAjof8V0Gr4zFoY00zHR",
-"4h7jnrmWCKE5xSDIULYOTE",
-"5UbLKRX1qVROlwDFOooEvG",
-"2HUAjeHWA7FQNbnWhlboOL",
-"3spdoTYpuCpmq19tuD0bOe",
-"60a0Rd6pjrkxjPbaKzXjfq",
-"7JoZiEMrwjpD18krCV8Czo",
-"3gVhsZtseYtY1fMuyYq06F",
-"4aYLAF6ckQ5ooGGGM7sWAa",
-"18lR4BzEs7e3qzc0KVkTpU",
-"5IX4TbIR5mMHGE4wiWwKW0",
-"2eB7JqIY4hTTSz31h6bjwR",
-"2HZLXBOnaSRhXStMLrq9fD",
-"5sICkBXVmaCQk5aISGR3x1",
-"0aYUqsvZG7bAslrUkd9Z0g",
-"7qEHsqek33rTcFNT9PFqLf",
-"4cOdK2wGLETKBW3PvgPWqT",
-"0u2P5u6lvoDfwTYjAADbn4",
-"1mea3bSkSGXuIRvnydlB5b",
-"2WfaOiMkCvy7F5fcp2zZ8L",
-"6RUKPb4LETWmmr3iAEQktW",
-"0GNI8K3VATWBABQFAzBAYe",
-"2dpaYNEQHiRxtZbfNsse99",
-"5QDLhrAOJJdNAmCTJ8xMyW",
-"5JvsxPAHsGxwNq4xto2HtM",
-"3kkLR262kQxpMmPhlN7Gy3",
-"4xwPOyN9VgaTPehdsLiYul",
-"3q2gRjU2UdOYRDY1p4cNHr",
-"7BfW1eoDh27W69nxsmRicb",
-"6RtPijgfPKROxEzTHNRiDp",
-"2hnMS47jN0etwvFPzYk11f",
-"1EXrFPfVNVsyb32yapebbM",
-"6JRLFiX9NJSoRRKxowlBYr",
-"0bAYJxEe6ate8gL0G2qj1B",
-"5U28PY9MekLyCBYtLHGQpe",
-};
-
 enum MAIN_FLAGS {
-    FLAG_REQUEST = 1,
+    FLAG_FEATURES = 1,
     FLAG_DEVICE = 1 << 1,
     FLAG_NO_PLAY = 1 << 2,
     FLAG_CONVERT = 1 << 3,
@@ -136,7 +52,7 @@ void get_options(int argc, char* const* argv) {
         {"analyze",     optional_argument,  &flags, FLAG_ANALYZE},
         {"convert",     no_argument,        &flags, FLAG_CONVERT},
         {"set-device",  no_argument,        &flags, FLAG_DEVICE},
-        {"features",    optional_argument,  &flags, FLAG_REQUEST},
+        {"db",          optional_argument,  &flags, FLAG_FEATURES},
         {"help",        no_argument,        &flags, FLAG_HELP},
         {"loglevel",    required_argument,  0, 'l'},
         {"no-play",     no_argument,        &flags, FLAG_NO_PLAY},
@@ -146,7 +62,7 @@ void get_options(int argc, char* const* argv) {
     
     int option_index = 0;
 
-    while ((c = getopt_long(argc, argv, "a::cdf::hl:n", options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "a::cdfhl:n", options, &option_index)) != -1) {
         switch (c) {
         case 0:
           /* If this option set a flag, do nothing else now. */
@@ -157,7 +73,7 @@ void get_options(int argc, char* const* argv) {
             break;
         case 'a':
             if (optarg)
-                MidiAnalyzer::set_containing_dir(optarg);
+                DatabaseManager::set_data_dir(optarg);
             flags |= FLAG_ANALYZE;
             break;
         case 'c':
@@ -167,9 +83,7 @@ void get_options(int argc, char* const* argv) {
             flags |= FLAG_DEVICE;
             break;
         case 'f':
-            if (optarg)
-                RequestManager::set_songlist_dir(optarg);
-            flags |= FLAG_REQUEST;
+            flags |= FLAG_FEATURES;
             break;
         case 'h':
             flags |= FLAG_HELP;
@@ -214,17 +128,96 @@ void convert() {
 void analyzer() {
     // MidiAnalyzer::set_containing_dir("data/midi/");
     MidiAnalyzer ma;
-    // ma.set_containing_dir("/home/nishi/Projects/tcc-testes/data/midi/");
-    ma.analyze_list(MIDIS, MIDIS_SPOTIFY_IDS);
+    ma.analyze_list();
     // ma.analyze_list({"Metal/6-Metallica_One.mid"});
     // ma.analyze_list({"teste_nnnc.mid", "teste_cnnn.mid"});
 }
 
-void requests() {
-    RequestManager rm;
-    rm.request_track_feature_from_list();
-    EmotionCategorizer::categorize();
-    // rm.request_track_feature_by_ids();
+void load_database() {
+    DatabaseManager* dbm = DatabaseManager::GetInstance();
+    RequestManager rm{};
+    if (rm.request_track_features()) {
+        dbm->reload();
+        EmotionCategorizer::categorize();
+    }
+}
+
+void teste() {
+    nlohmann::json emotion_json;
+    std::fstream f;
+    std::map<std::string, std::map<double, double>> emotion_to_durations;
+    Json::read_json(&emotion_json, "data/emotion_midi.json");
+    std::map<double, double> relaxed_duration;
+    std::map<double, double> sad_duration;
+    std::map<double, double> angry_duration;
+    std::map<double, double> happy_duration;
+
+    // emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
+    relaxed_duration = emotion_json["emotions"]["relaxed"]["durations_prob_matrix"].get<std::map<double, double>>();
+    sad_duration = emotion_json["emotions"]["sad"]["durations_prob_matrix"].get<std::map<double, double>>();
+    angry_duration = emotion_json["emotions"]["angry"]["durations_prob_matrix"].get<std::map<double, double>>();
+    happy_duration = emotion_json["emotions"]["happy"]["durations_prob_matrix"].get<std::map<double, double>>();
+    double highest_prob_duration = 0;
+    double highest_duration = 0;
+    for (auto &[dur, prob] : relaxed_duration) {
+        if (prob > highest_prob_duration) {
+            highest_prob_duration = prob;
+            highest_duration = dur;
+        }
+    }
+    std::cout << "Maior duração para relaxed: ";
+    std::cout.precision(17);
+    std::cout << highest_duration << " , com prob de: " << highest_prob_duration << "\n";
+    highest_prob_duration = 0;
+    highest_duration = 0;
+
+    for (auto &[dur, prob] : sad_duration) {
+        if (prob > highest_prob_duration) {
+            highest_prob_duration = prob;
+            highest_duration = dur;
+        }
+    }
+    std::cout << "Maior duração para sad: ";
+    std::cout.precision(17);
+    std::cout << highest_duration << " , com prob de: " << highest_prob_duration << "\n";
+    highest_prob_duration = 0;
+    highest_duration = 0;
+    
+    for (auto &[dur, prob] : happy_duration) {
+        if (prob > highest_prob_duration) {
+            highest_prob_duration = prob;
+            highest_duration = dur;
+        }
+    }
+
+    std::cout << "Maior duração para happy: ";
+    std::cout.precision(17);
+    std::cout << highest_duration << " , com prob de: " << highest_prob_duration << "\n";
+    highest_prob_duration = 0;
+    highest_duration = 0;
+    for (auto &[dur, prob] : angry_duration) {
+        if (prob > highest_prob_duration) {
+            highest_prob_duration = prob;
+            highest_duration = dur;
+        }
+    }
+    std::cout << "Maior duração para angry: ";
+    std::cout.precision(17);
+    std::cout << highest_duration << " , com prob de: " << highest_prob_duration << "\n";
+
+    // for (auto emo : EMO_TO_STR) {
+        // matriz = emotion_json["emotions"][emo]["prob_matrix"];
+        // emotion_to_cadeia_notas.insert(std::make_pair(emo, new Markov(matriz)));
+        
+        // vetor = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
+        
+        // emotion_to_cadeia_notas.emplace("sad", Markov(matriz));
+        // emotion_to_bpms[emo] = vetor;
+        
+        // emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
+        // emotion_to_durations[emo]
+
+    // }
 }
 
 int main(int argc, char* argv[]) {
@@ -240,21 +233,19 @@ int main(int argc, char* argv[]) {
         usage();
         exit(EXIT_FAILURE);
     }
-
-    if (flags & FLAG_CONVERT )  {
+    
+    if (flags & FLAG_CONVERT)  {
         convert();
     }
 
-    if (flags & FLAG_REQUEST )  {
-        std::cout << "Performing requests..." << '\n';
-        requests();
+    if (flags & FLAG_FEATURES)  {
+        load_database();
     }
-
-    if (flags & FLAG_ANALYZE )  {
+    
+    if (flags & FLAG_ANALYZE)  {
         analyzer();
     }
-
-    if (flags & FLAG_DEVICE ) {
+    if (flags & FLAG_DEVICE) {
         DeviceManager::set_flag(DeviceManager::FORCE_SET_DEVICE); 
     }
     if (flags & FLAG_NO_PLAY) {

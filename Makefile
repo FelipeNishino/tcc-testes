@@ -4,9 +4,9 @@ BIN_DIR := ./bin
 BUILD_DIR := ./build
 SRC_DIRS := ./src
 INC_DIRS := ./include
-STATIC_LIBS := libs/libjsoncpp.a libs/libcurlpp.a libs/libmidifile.a
-CFLAGS += -Wall -g -D__LITTLE_ENDIAN__
-CPPFLAGS += -Wall -g -D__LITTLE_ENDIAN__
+STATIC_LIBS := libs/libcurlpp.a libs/libmidifile.a
+CFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
+CPPFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
 LDFLAGS += -Llibs -lstk -lcurl -lpthread -lasound -lm
 
 # Find all the C and C++ files we want to compile
@@ -28,7 +28,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := $(INC_FLAGS) -MMD -MP
+CPPFLAGS += $(INC_FLAGS) -MMD -MP
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
