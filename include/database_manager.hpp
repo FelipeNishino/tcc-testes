@@ -21,6 +21,9 @@ struct MidiFSEntry {
     std::string spotify_id() {
         return filename.substr(0, 22);
     }
+    std::string json_path() {
+        return std::filesystem::path{path}.replace_extension(".json");;
+    }
     void dump() {
         std::cout << "Midi description:" << "\n";
         std::cout << "Filename: " << filename << "" << "\n";
