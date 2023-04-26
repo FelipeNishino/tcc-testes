@@ -16,8 +16,8 @@ StkWrapper::StkWrapper() {
     no_message = true;
     done = false;
 	now_playing = std::set<float>();
-	configure();
-	
+    voicer = new stk::Voicer{};
+    configure();
 	// instrument = new stk::BeeThree();
     // instrument = new stk::Guitar();
     // instrument = new stk::Mandolin(120); // Interessante
