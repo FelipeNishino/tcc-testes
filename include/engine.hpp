@@ -4,63 +4,42 @@
 #include <atomic>
 #include <map>
 #include <mutex>
-#include <stk/Generator.h>
 #include "markov.hpp"
 #include "stk_wrapper.hpp"
-
-// class Engine {
-//     public:
-//         Markov cadeia_notas;
-//         StkWrapper wrapper;
-//         Engine(int n, int* m_notas)
-//         :
-//         cadeia_notas(n, m_notas)
-//         {}
-//         void get_nota();
-//         void play();
-// };
-
-enum Emotion {
-    happy,
-    sad,
-    angry,
-    relaxed,
-    none
-};
-
-// template<typename T>
-// struct enum_identity { 
-//   typedef T type; 
-// };
-
-// Emotion size(enum_identity<Emotion>) {
-//     return none;
-// }
+#include "emotion.hpp"
 
 struct States {
     int note_state{};
     int tempo_state{};
-    double duration_state{};
+    // double duration_state{};
+};
+
+struct EmotionFeatures {    
+    Markov* note_chain;
+    std::vector<std::vector<int>> transition_count;
+    std::vector<int> bpms;
+    // std::map<double, double> durations;
+    std::map<int, double> keys;
+    int mode;
 };
 
 class Engine {
     private:
         static Engine * pinstance_;
         static std::mutex mutex_;
-
+        std::vector<int> mode;
+        std::map<std::string, EmotionFeatures> emo_feats;
     protected:
         Engine();
         ~Engine() {}
     public:        
-        std::map<std::string, Markov*> emotion_to_cadeia_notas;
-        std::map<std::string, std::vector<int>> emotion_to_bpms;
-        std::map<std::string, std::map<double, double>> emotion_to_durations;
         States states;
         std::mt19937 generator;
-        std::atomic<Emotion> emotion;
+        Emotion emotion;
         std::atomic<int> bpm;
+        std::atomic<int> mode_type;
+        std::atomic<int> key;
         int default_octave;
-        StkWrapper wrapper;
         int get_note();
         int count_notas;
         void play();
@@ -72,14 +51,12 @@ class Engine {
         // Singletons should not be assignable.
         void operator=(const Engine &) = delete;
         void get_bpm();
-        double get_duration();
+        void get_mode();
+        void get_key();
+        // double get_duration();
+        void get_note_probabilities();
         static Engine *GetInstance();
-
-        // std::string value() const{
-        //     return value_;
-        // } 
+        StkWrapper wrapper;
 };
-
-
 
 #endif //TCC_ENGINE_H

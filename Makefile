@@ -7,7 +7,7 @@ INC_DIRS := ./include
 STATIC_LIBS := libs/libcurlpp.a libs/libmidifile.a
 CFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
 CPPFLAGS += -Wall -g -D__LITTLE_ENDIAN__ -std=c++20
-LDFLAGS += -Llibs -lstk -lcurl
+LDFLAGS += -Llibs -lstk -lcurl -lpthread -lasound -lm
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
@@ -48,8 +48,10 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 .PHONY: clean
 clean:
-	rm -r $(BUILD_DIR)
-	rm -r $(BIN_DIR)
+	rm -fr $(BUILD_DIR)
+	rm -fr $(BIN_DIR)
+	rm -f vgcore.*
+	rm -f corefile.*
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

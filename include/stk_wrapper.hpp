@@ -1,27 +1,29 @@
 #ifndef TCC_STKWRAPPER_H
 #define TCC_STKWRAPPER_H
 
-#include "stk/BeeThree.h"
-#include "stk/Messager.h"
-#include "stk/Voicer.h"
-#include "stk/SKINImsg.h"
-#include "stk/RtAudio.h"
+#include <stk/BeeThree.h>
+#include <stk/Messager.h>
+#include <stk/Voicer.h>
+#include <stk/SKINImsg.h>
+#include <stk/RtAudio.h>
 #include <stk/Stk.h>
 #include <set>
-#include "stk/Messager.h"
-#include "stk/Guitar.h"
-#include "stk/Mandolin.h"
-#include "stk/BeeThree.h"
+#include <array>
+#include <stk/Messager.h>
+#include <stk/Guitar.h>
+#include <stk/Mandolin.h>
+#include <stk/BeeThree.h>
 
 #define DELTA_CONTROL_TICKS 64 // default sample frames between control input checks
 
 class StkWrapper {
     private:
         // stk::Voicer voicer;
+        std::array<stk::Instrmnt*, 3> instruments;
         stk::Voicer* voicer;
 	    stk::Messager messager;
 	    stk::Skini::Message message;
-        RtAudio dac;
+        RtAudio dac{};
 	    int counter;
 	    bool no_message;
 	    bool done;
@@ -51,6 +53,7 @@ class StkWrapper {
         long get_required_counter();
         stk::StkFloat get_sample();
         StkWrapper();
+        ~StkWrapper();
 };
 
 #endif //TCC_STKWRAPPER_H

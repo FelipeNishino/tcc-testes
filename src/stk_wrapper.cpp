@@ -8,32 +8,39 @@
 #include "engine.hpp"
 #include "midi.hpp"
 #include "stk_wrapper.hpp"
-#include "utils.hpp"
+#include "logger.hpp"
 
 StkWrapper::StkWrapper() {
     stk::Stk::showWarnings(true);
+    stk::Stk::setRawwavePath( "./rawwaves/" );
+    
     counter = 0;
     no_message = true;
     done = false;
 	now_playing = std::set<float>();
-	configure();
-	
+    voicer = new stk::Voicer{};
+    configure();
 	// instrument = new stk::BeeThree();
     // instrument = new stk::Guitar();
     // instrument = new stk::Mandolin(120); // Interessante
-
     stk::Instrmnt *instrument[3];
+    for (int i = 0; i<3; i++ ) instrument[i] = 0;
     try {
 	// Define and load the BeeThree instruments
-        for ( int i=0; i<3; i++ ) {
+        for (int i = 0; i < 3; i++) {
 			instrument[i] = new stk::Mandolin(120);
 			// instrument[i] = new stk::BeeThree();
 			voicer->addInstrument(instrument[i]);
         }
     }
 	catch ( stk::StkError & ) {
-        std::cout << "Erro ao instanciar instrumentos" << std::endl;   
+        Logger::log(Logger::LOG_ERROR, "<StkWrapper> Erro ao instanciar instrumentos");
 	}
+}
+
+StkWrapper::~StkWrapper() {
+    for (int i=0; i<3; i++ )  delete instruments[i];
+    Logger::log(Logger::LOG_ERROR, "<StkWrapper> Deletou instrumentos");
 }
 
 bool StkWrapper::has_message() { return !no_message; }
@@ -56,6 +63,7 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 	
 	while ( nTicks > 0 && !wrapper->is_done() ) {
 		if ( !wrapper->has_message() ) {
+
 			wrapper->message_from_note(engine->get_note());	
 
 			mt = wrapper->get_message_type();
@@ -81,7 +89,6 @@ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 void StkWrapper::process_message() {
 	stk::StkFloat value1 = message.floatValues[0];
 	stk::StkFloat value2 = message.floatValues[1];
-
 	switch( message.type ) {
 		case __SK_Exit_:
 			done = true;
@@ -172,6 +179,7 @@ void StkWrapper::configure() {
 	RtAudioFormat format = ( sizeof(stk::StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
 	unsigned int bufferFrames = stk::RT_BUFFER_SIZE;
     // 1/4
+    
     
 	try {
 		dac.openStream( &parameters, NULL, format, (unsigned int)stk::Stk::sampleRate(), &bufferFrames, &tick, NULL );
