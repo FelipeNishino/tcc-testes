@@ -3,6 +3,8 @@
 #include "emotion_categorizer.hpp"
 #include "logger.hpp"
 #include "utils.hpp"
+#include "foreach_extra.hpp"
+
 
 DatabaseManager* DatabaseManager::pinstance_{nullptr};
 std::mutex DatabaseManager::mutex_;
