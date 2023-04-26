@@ -5,6 +5,8 @@ userconfig.txt
 data
 import
 dataog
+corefile.*
+vgcore.*
 # Compiled Object files
 *.slo
 *.lo
