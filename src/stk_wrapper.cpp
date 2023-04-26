@@ -6,7 +6,6 @@
 #include <vector>
 #include "device_manager.hpp"
 #include "engine.hpp"
-#include "midi.hpp"
 #include "stk_wrapper.hpp"
 #include "logger.hpp"
 

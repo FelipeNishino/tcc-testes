@@ -20,8 +20,6 @@ Markov::Markov(std::vector<std::vector<double>> m) {
     std::uniform_int_distribution<unsigned> distrib(0, m.size());
 
     matriz_transicao = m;
-    auto p0 = std::chrono::time_point<std::chrono::high_resolution_clock>{};
-    std::time_t epoch_time = std::chrono::system_clock::to_time_t(p0);
     generator = std::mt19937(seed);
 
     Logger::log(Logger::LOG_INFO, "<Markov> Seed: %d", seed);
@@ -43,7 +41,7 @@ int Markov::proximo_estado(int atual) {
 }
 
 void Markov::display() {
-    int i, j;
+    unsigned long i, j;
 
     std::cout << "Transicoes: "  << std::endl;
     for (i = 0; i < matriz_transicao.size(); i++) {

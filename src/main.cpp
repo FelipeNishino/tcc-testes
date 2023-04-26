@@ -11,7 +11,6 @@
 #include "emotion_categorizer.hpp"
 #include "engine.hpp"
 #include "logger.hpp"
-#include "midi.hpp"
 #include "json.hpp"
 #include "midi_analyzer.hpp"
 #include "path_helper.hpp"
@@ -43,7 +42,6 @@ void usage() {
 
 void get_options(int argc, char* const* argv) {
     int c = 0;
-    int ret = 0;
 
     static const struct option options[] = {
         {"analyze",     optional_argument,  &flags, FLAG_ANALYZE},

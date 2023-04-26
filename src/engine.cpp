@@ -27,7 +27,7 @@ Engine::Engine() {
                 std::chrono::high_resolution_clock::now().time_since_epoch()
                 ).count() );
     
-    generator = std::mt19937(std::chrono::time_point<std::chrono::high_resolution_clock>{}.time_since_epoch().count());
+    generator = std::mt19937(seed);
     emotion = Emotion::happy;
     bpm = 0;
     for (auto emo : Emotion::EMO_TO_STR) {
