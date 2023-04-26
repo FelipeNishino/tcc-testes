@@ -197,7 +197,7 @@ void Engine::get_note_probabilities() {
         i = (mode[mode_index_i] + _key) % 12;
         for (mode_index_j = 0; mode_index_j < 7;) {
             j = (mode[mode_index_j++] + _key) % 12;
-            Logger::log(Logger::LOG_DEBUG, "<Engine> Vai somar o valor em [%d][%d]", i, j);
+            // Logger::log(Logger::LOG_DEBUG, "<Engine> Vai somar o valor em [%d][%d]", i, j);
             total_in_mode[mode_index_i] += emo_feats[emotion.str()].transition_count[i][j];
         }
     }
@@ -207,30 +207,30 @@ void Engine::get_note_probabilities() {
         for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
             j = (mode[mode_index_j] + _key) % 12;            
             emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j] = (double)emo_feats[emotion.str()].transition_count[i][j] * 100.0 / total_in_mode[mode_index_i];
-            Logger::log(Logger::LOG_DEBUG, "<Engine> Prob [%d][%d] = %f", mode_index_i, mode_index_j, emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j]);
+            // Logger::log(Logger::LOG_DEBUG, "<Engine> Prob [%d][%d] = %f", mode_index_i, mode_index_j, emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j]);
         }
     }
 
-    for (mode_index_i = 0; mode_index_i < 7; mode_index_i++) {
-        i = (mode[mode_index_i] + _key) % 12;
-        for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
-            j = (mode[mode_index_j] + _key) % 12;
-            std::cout << emo_feats[emotion.str()].transition_count[i][j] << ", ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "\n";
-    for (i = 0; i < 7; i++) {
-        std::cout << total_in_mode[i] << "   ";    
-    }
-    std::cout << "\n";
-    std::cout << "\n";
-    for (i = 0; i < 7; i++) {
-        for (j = 0; j < 7; j++) {
-            std::cout << emo_feats[emotion.str()].note_chain->matriz_transicao[i][j] << ", ";
-        }   
-        std::cout << "\n";
-    }
+    // for (mode_index_i = 0; mode_index_i < 7; mode_index_i++) {
+    //     i = (mode[mode_index_i] + _key) % 12;
+    //     for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
+    //         j = (mode[mode_index_j] + _key) % 12;
+    //         std::cout << emo_feats[emotion.str()].transition_count[i][j] << ", ";
+    //     }
+    //     std::cout << "\n";
+    // }
+    // std::cout << "\n";
+    // for (i = 0; i < 7; i++) {
+    //     std::cout << total_in_mode[i] << "   ";    
+    // }
+    // std::cout << "\n";
+    // std::cout << "\n";
+    // for (i = 0; i < 7; i++) {
+    //     for (j = 0; j < 7; j++) {
+    //         std::cout << emo_feats[emotion.str()].note_chain->matriz_transicao[i][j] << ", ";
+    //     }   
+    //     std::cout << "\n";
+    // }
     
     Logger::log(Logger::LOG_INFO, "Escala: <%s>", [this, _key]()->std::string {
         std::string str;
@@ -238,9 +238,7 @@ void Engine::get_note_probabilities() {
         return str;
     }().c_str());
     
-    std::cout << "\n";
     Logger::log(Logger::LOG_INFO, "<Engine> Terminou de contabilizar as probabilidades");
-
 }
 
 void Engine::play() {
