@@ -66,6 +66,8 @@ Engine::Engine() {
         emo_feats[emo].bpms = emotion_json["emotions"][emo]["tempos"].get<std::vector<int>>();
         std::vector<std::vector<double>> m(7, std::vector<double>(7, 0));
         emo_feats[emo].note_chain = new Markov(m);
+
+        Logger::log(Logger::LOG_INFO, "<Engine> Emoção %s carregada", emo.c_str());
         // emotion_to_durations[emo] = emotion_json["emotions"][emo]["durations_prob_matrix"].get<std::map<double, double>>();
     }
     
@@ -89,6 +91,7 @@ int Engine::get_note() {
     
     states.note_state = emo_feats[emotion.str()].note_chain->proximo_estado(note);
     count_notas++;
+    Logger::log(Logger::LOG_INFO, "Nota sorteada <%d>", (mode[note] + key.load()) + 12 * default_octave);
     return (mode[note] + key.load()) + 12 * default_octave;
 }
 
@@ -194,6 +197,7 @@ void Engine::get_note_probabilities() {
         i = (mode[mode_index_i] + _key) % 12;
         for (mode_index_j = 0; mode_index_j < 7;) {
             j = (mode[mode_index_j++] + _key) % 12;
+            Logger::log(Logger::LOG_DEBUG, "<Engine> Vai somar o valor em [%d][%d]", i, j);
             total_in_mode[mode_index_i] += emo_feats[emotion.str()].transition_count[i][j];
         }
     }
@@ -203,6 +207,7 @@ void Engine::get_note_probabilities() {
         for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
             j = (mode[mode_index_j] + _key) % 12;            
             emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j] = (double)emo_feats[emotion.str()].transition_count[i][j] * 100.0 / total_in_mode[mode_index_i];
+            Logger::log(Logger::LOG_DEBUG, "<Engine> Prob [%d][%d] = %f", mode_index_i, mode_index_j, emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j]);
         }
     }
 
@@ -227,6 +232,14 @@ void Engine::get_note_probabilities() {
         std::cout << "\n";
     }
     
+    Logger::log(Logger::LOG_INFO, "Escala: <%s>", [this, _key]()->std::string {
+        std::string str;
+        for (int i = 0; i < 7; i++) str += std::to_string((mode[i] + _key) + 12 * default_octave) + " ";
+        return str;
+    }().c_str());
+    
+    std::cout << "\n";
+    Logger::log(Logger::LOG_INFO, "<Engine> Terminou de contabilizar as probabilidades");
 
 }
 
@@ -266,12 +279,12 @@ void Engine::play() {
 	
 
 	// Shut down the callback and output stream.
-    Logger::log(Logger::LOG_INFO, "Fechando a stream...");
+    Logger::log(Logger::LOG_INFO, "<Engine> Fechando a stream...");
 	try {
 	    wrapper.toggle_stream(false);
 	}
 	catch ( RtAudioError &error ) {
-            Logger::log(Logger::LOG_INFO, "N conseguiu fechar...");
+            Logger::log(Logger::LOG_ERROR, "<Engine> Erro ao fechar a stream");
 
 	    error.printMessage();
         return;
