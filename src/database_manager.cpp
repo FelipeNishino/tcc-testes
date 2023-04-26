@@ -57,7 +57,7 @@ void DatabaseManager::import_files() {
                 midi_file.path = entry.path();
 
                 std::filesystem::path new_path{data_dir + midi_file.spotify_id()};
-
+                Logger::log(Logger::LOG_INFO, "Creating directory <%s>", new_path.c_str());
                 if (!std::filesystem::create_directories(new_path)) {
                     Logger::log(Logger::LOG_WARNING, "<Database> Couldn't create directory %s%s.", data_dir.c_str(), midi_file.spotify_id().c_str());    
                     continue;
@@ -155,9 +155,10 @@ void DatabaseManager::save_features(std::vector<MidiFSEntry> no_feat_midis, std:
             [](nlohmann::json feat, MidiFSEntry midi_entry) {
                 nlohmann::json result;
                 result["audio_features"] = feat;
+                // TODO: colocar o midi_entry numa var pra n alterar o source (talvez n seja necessário pq o for_each_zipped é uma função)
                 std::fstream output_file(midi_entry.path.replace_extension(".json").string(), std::ios::out);
                 if (output_file.fail()) {
-			        std::cout << "deu ruim" << std::endl;
+			        std::cout << "Falha no acesso ao arquivo " << midi_entry.path.replace_extension(".json") << std::endl;
         	        output_file.close();
     	        }
                 output_file << result.dump(4);
