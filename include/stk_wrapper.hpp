@@ -51,7 +51,8 @@ class StkWrapper {
         void set_counter(int n);
         void toggle_stream(bool on);
         long get_required_counter();
-        stk::StkFloat get_sample();
+        void get_sample(int channel = 0);
+        stk::StkFrames frames;
         StkWrapper();
         ~StkWrapper();
 };

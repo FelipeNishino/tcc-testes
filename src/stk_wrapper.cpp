@@ -47,34 +47,37 @@ bool StkWrapper::has_message() { return !no_message; }
 bool StkWrapper::is_done() { return done; }
 void StkWrapper::set_done() { done = true; }
 void StkWrapper::toggle_stream(bool on) { if (on) dac.startStream(); else dac.stopStream(); }
-stk::StkFloat StkWrapper::get_sample() { return voicer->tick(); }
+void StkWrapper::get_sample(int channel) { voicer->tick(frames); }
 long StkWrapper::get_message_type() { return message.type; }
 long StkWrapper::get_required_counter() { return (long) (message.time * stk::Stk::sampleRate()); }
 int StkWrapper::get_counter() { return counter; }
 void StkWrapper::set_counter(int n) { counter = n; }
 
-int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+int tick( void *outputBuffer, void *inputBuffer, unsigned int nFrames,
 		 double streamTime, RtAudioStreamStatus status, void *dataPointer )
 {
 	Engine* engine = Engine::GetInstance();
 	StkWrapper* wrapper = &engine->wrapper;
     stk::StkFloat *samples = (stk::StkFloat *) outputBuffer;
-	int mt, counter, nTicks = (int) nBufferFrames;
-	
+    int out_channels = nFrames/stk::RT_BUFFER_SIZE;
+	int mt, counter = 0;
+    int nTicks = (int) nFrames;
 	while ( nTicks > 0 && !wrapper->is_done() ) {
 		if ( !wrapper->has_message() ) {
-
 			wrapper->message_from_note(engine->get_note());	
 
 			mt = wrapper->get_message_type();
 			wrapper->set_counter(( mt > 0 ? wrapper->get_required_counter() : DELTA_CONTROL_TICKS));
 		}	
-
-		counter = std::min( nTicks, wrapper->get_counter() );
+        
+        counter = std::min( nTicks, wrapper->get_counter() );
 		wrapper->set_counter( wrapper->get_counter() - counter);
-
-		for ( int i=0; i<counter; i++ ) {
-			*samples++ = wrapper->get_sample();
+    
+        wrapper->get_sample();
+		for ( int i = 0; i < counter; i++ ) {
+            for (int j = 0; j < out_channels; j++) {
+                *samples++ = wrapper->frames[i];
+            }
 			nTicks--;
 		}
 		if ( nTicks == 0 ) break;
@@ -172,17 +175,16 @@ void StkWrapper::configure() {
 	
 	parameters.deviceId = dm.get_device_id();
 	RtAudio::DeviceInfo device = dac.getDeviceInfo(dm.get_device_id());
-	// parameters.nChannels = device.outputChannels;
-    
-    parameters.nChannels = 1;
+	parameters.nChannels = std::max(device.outputChannels, (unsigned int)2);
+    Logger::log(Logger::LOG_DEBUG, "Setting nChannels to %d for device %s", parameters.nChannels, device.name.c_str());
+
 	stk::Stk::setSampleRate( device.preferredSampleRate );
 	RtAudioFormat format = ( sizeof(stk::StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
 	unsigned int bufferFrames = stk::RT_BUFFER_SIZE;
     // 1/4
-    
-    
+    frames.resize(bufferFrames, parameters.nChannels);
 	try {
-		dac.openStream( &parameters, NULL, format, (unsigned int)stk::Stk::sampleRate(), &bufferFrames, &tick, NULL );
+		dac.openStream( &parameters, NULL, format, (unsigned int)stk::Stk::sampleRate(), &bufferFrames, &tick, NULL);
 	}
 	catch ( RtAudioError &error ) {
 		error.printMessage();
