@@ -337,7 +337,11 @@ void MidiAnalyzer::analyze_list(std::vector<std::string> midi_list, std::vector<
         }
 
         emotion_to_modes[features_json["audio_features"][i]["emotion"]].push_back(features_json["audio_features"][i]["mode"]);
-        emotion_to_keys[features_json["audio_features"][i]["emotion"]][features_json["audio_features"][i]["key"]]++;
+
+        // Pula músicas sem tom definido
+        if (features_json["audio_features"][i]["key"] >= 0) {
+            emotion_to_keys[features_json["audio_features"][i]["emotion"]][features_json["audio_features"][i]["key"]]++;
+        }
 
         for (int tempos : features_json["audio_features"][i]["midi_features"]["bpms"]) {
             emotion_to_tempos[features_json["audio_features"][i]["emotion"]].insert(tempos);

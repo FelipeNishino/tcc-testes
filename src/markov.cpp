@@ -56,9 +56,9 @@ int Markov::proximo_estado(int atual) {
         if (val < sum) break;
         prox++;
     }
-    if (prox == 12) {
-        prox = proximo_estado(atual);
-    }
+    // if (prox == 12) {
+    //     prox = proximo_estado(atual);
+    // }
     Logger::log(Logger::LOG_DEBUG, "<Markov> Estado selecionado: %d", prox);
 
     return prox;

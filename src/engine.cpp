@@ -89,7 +89,7 @@ int Engine::get_note() {
     
     states.note_state = emo_feats[emotion.str()].note_chain->proximo_estado(note);
     count_notas++;
-    return note + 12 * default_octave;
+    return (mode[note] + key.load()) + 12 * default_octave;
 }
 
 // double Engine::get_duration() {
@@ -117,7 +117,14 @@ void Engine::get_bpm() {
 }
 
 void Engine::get_mode() {
-    mode.store(emotion_to_mode[EMO_TO_STR[emotion.load()]]);
+    mode_type.store(emo_feats[emotion.str()].mode);
+    
+    if (mode_type.load()) {
+        mode = {0, 2, 4, 5, 7, 9 ,11};
+    }
+    else {
+        mode = {0, 2, 3, 5, 7, 8 ,10};
+    }
 }
 
 void Engine::get_key() {
@@ -128,7 +135,7 @@ void Engine::get_key() {
         sum += prob;
         prox = key;
 
-        // if (val < sum) break;  
+        if (val < sum) break;  
     }
     
     // if (prox == 12) {
@@ -171,23 +178,69 @@ void Engine::listen_to_emotion_input() {
         get_bpm();
         std::cout << "BPM: " << bpm.load() << '\n';
         get_mode();
-        std::cout << "Escala: " << (mode.load() ? "Maior" : "Menor") << '\n';
+        std::cout << "Escala: " << (mode_type.load() ? "Maior" : "Menor") << '\n';
         get_key();
         std::cout << "Tom: " << key.load() << '\n';
+        get_note_probabilities();
     }
 }
 
-void Engine::play() {
-        get_emotion();
-        std::cout << "\x1B[2J\x1B[H";
-        get_bpm();
-        std::cout << "BPM: " << bpm.load() << '\n';
-        Logger::log(Logger::LOG_ERROR, "Tô aquiasdac");
-        get_mode();
-        std::cout << "Escala: " << (mode.load() ? "Maior" : "Menor") << '\n';
-        get_key();
-        std::cout << "Tom: " << key.load() << '\n';
+void Engine::get_note_probabilities() {
+    int _key = key.load();
+    int i{}, j{}, mode_index_i{}, mode_index_j{};
+    std::vector<int> total_in_mode(7, 0);
+    
+    for (mode_index_i = 0; mode_index_i < 7; mode_index_i++) {
+        i = (mode[mode_index_i] + _key) % 12;
+        for (mode_index_j = 0; mode_index_j < 7;) {
+            j = (mode[mode_index_j++] + _key) % 12;
+            total_in_mode[mode_index_i] += emo_feats[emotion.str()].transition_count[i][j];
+        }
     }
+
+    for (mode_index_i = 0; mode_index_i < 7; mode_index_i++) {
+        i = (mode[mode_index_i] + _key) % 12;
+        for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
+            j = (mode[mode_index_j] + _key) % 12;            
+            emo_feats[emotion.str()].note_chain->matriz_transicao[mode_index_i][mode_index_j] = (double)emo_feats[emotion.str()].transition_count[i][j] * 100.0 / total_in_mode[mode_index_i];
+        }
+    }
+
+    for (mode_index_i = 0; mode_index_i < 7; mode_index_i++) {
+        i = (mode[mode_index_i] + _key) % 12;
+        for (mode_index_j = 0; mode_index_j < 7; mode_index_j++) {
+            j = (mode[mode_index_j] + _key) % 12;
+            std::cout << emo_feats[emotion.str()].transition_count[i][j] << ", ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+    for (i = 0; i < 7; i++) {
+        std::cout << total_in_mode[i] << "   ";    
+    }
+    std::cout << "\n";
+    std::cout << "\n";
+    for (i = 0; i < 7; i++) {
+        for (j = 0; j < 7; j++) {
+            std::cout << emo_feats[emotion.str()].note_chain->matriz_transicao[i][j] << ", ";
+        }   
+        std::cout << "\n";
+    }
+    
+
+}
+
+void Engine::play() {
+    get_emotion();
+    std::cout << "\x1B[2J\x1B[H";
+    get_bpm();
+    std::cout << "BPM: " << bpm.load() << '\n';
+    get_mode();
+    std::cout << "Escala: " << (mode_type.load() ? "Maior" : "Menor") << '\n';
+    get_key();
+    std::cout << "Tom: " << key.load() << '\n';
+    get_note_probabilities();
+    
 
     std::thread first(&Engine::listen_to_emotion_input, this);
 

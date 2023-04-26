@@ -27,7 +27,7 @@ class Engine {
     private:
         static Engine * pinstance_;
         static std::mutex mutex_;
-
+        std::vector<int> mode;
         std::map<std::string, EmotionFeatures> emo_feats;
     protected:
         Engine();
@@ -37,10 +37,9 @@ class Engine {
         std::mt19937 generator;
         Emotion emotion;
         std::atomic<int> bpm;
-        std::atomic<int> mode;
+        std::atomic<int> mode_type;
         std::atomic<int> key;
         int default_octave;
-        StkWrapper wrapper;
         int get_note();
         int count_notas;
         void play();
@@ -55,10 +54,9 @@ class Engine {
         void get_mode();
         void get_key();
         // double get_duration();
+        void get_note_probabilities();
         static Engine *GetInstance();
-
+        StkWrapper wrapper;
 };
-
-
 
 #endif //TCC_ENGINE_H
