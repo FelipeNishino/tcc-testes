@@ -2,6 +2,7 @@
 #include <iostream>
 #include "markov.hpp"
 #include "engine.hpp"
+#include "logger.hpp"
 
 // Markov::Markov(std::vector<int> m) {
 //     estado = c1;
@@ -41,11 +42,13 @@ Markov::Markov(std::vector<std::vector<double>> m) {
     auto p0 = std::chrono::time_point<std::chrono::high_resolution_clock>{};
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(p0);
     generator = std::mt19937(seed);
-    std::cout << "Seed: " << seed << "\n";
+
+    Logger::log(Logger::LOG_INFO, "<Markov> Seed: %d", seed);
 }
 
 int Markov::proximo_estado(int atual) {
     double val = std::generate_canonical<double,std::numeric_limits<double>::digits>(generator) * 100.0;
+    Logger::log(Logger::LOG_DEBUG, "<Markov> Vai gerar o proximo estado");
     double sum{};
     int prox{};
     for (auto prob : matriz_transicao[atual]) {
@@ -56,6 +59,8 @@ int Markov::proximo_estado(int atual) {
     if (prox == 12) {
         prox = proximo_estado(atual);
     }
+    Logger::log(Logger::LOG_DEBUG, "<Markov> Estado selecionado: %d", prox);
+
     return prox;
 }
 
