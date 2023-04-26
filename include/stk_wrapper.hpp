@@ -1,17 +1,17 @@
 #ifndef TCC_STKWRAPPER_H
 #define TCC_STKWRAPPER_H
 
-#include "stk/BeeThree.h"
-#include "stk/Messager.h"
-#include "stk/Voicer.h"
-#include "stk/SKINImsg.h"
-#include "stk/RtAudio.h"
+#include <stk/BeeThree.h>
+#include <stk/Messager.h>
+#include <stk/Voicer.h>
+#include <stk/SKINImsg.h>
+#include <stk/RtAudio.h>
 #include <stk/Stk.h>
 #include <set>
-#include "stk/Messager.h"
-#include "stk/Guitar.h"
-#include "stk/Mandolin.h"
-#include "stk/BeeThree.h"
+#include <stk/Messager.h>
+#include <stk/Guitar.h>
+#include <stk/Mandolin.h>
+#include <stk/BeeThree.h>
 
 #define DELTA_CONTROL_TICKS 64 // default sample frames between control input checks
 

@@ -4,7 +4,6 @@
 #include <atomic>
 #include <map>
 #include <mutex>
-#include <stk/Generator.h>
 #include "markov.hpp"
 #include "stk_wrapper.hpp"
 
